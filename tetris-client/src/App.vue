@@ -8,7 +8,7 @@ export default {
   },
   mounted() {
     // 建立 WebSocket 連線
-    this.ws = new WebSocket("ws://localhost:8080/game");
+    this.ws = new WebSocket("ws://localhost:8080/game/1");
 
     this.ws.onopen = () => {
     console.log("WebSocket 連線成功");
@@ -18,6 +18,7 @@ export default {
     this.ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       this.updateGameState(data); // 更新遊戲狀態
+      console.log("收到後端的訊息:", event.data);
     };
 
     // 鍵盤事件偵聽（用戶輸入）

@@ -75,8 +75,8 @@ func main() {
 	r := gin.Default()
 
 	// Gin 路由來處理 WebSocket 連接
-	r.GET("/game", func(c *gin.Context) {
-		//roomID := c.Param("roomID")
+	r.GET("/game/:roomID", func(c *gin.Context) {
+		roomID := c.Param("roomID")
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
 			fmt.Println("Error upgrading connection:", err)
@@ -85,7 +85,7 @@ func main() {
 		defer conn.Close()
 
 		// 處理此 WebSocket 連線
-		handleConnection(conn, "1")
+		handleConnection(conn, roomID)
 	})
 
 	r.Run(":8080")
