@@ -152,8 +152,8 @@ func updateGameLoop(conn *websocket.Conn, roomID string) {
 		curGameState := rooms[roomID]
 
 		// 自動讓方塊向下移動（可以根據遊戲規則更新）
-		curGameState.Player1Block = moveBlockDown(curGameState.Player1Block)
-		curGameState.Player2Block = moveBlockDown(curGameState.Player2Block)
+		curGameState = moveBlockDown(curGameState)
+		curGameState = moveBlockDown(curGameState)
 
 		// 更新遊戲狀態
 		rooms[roomID] = curGameState
@@ -163,8 +163,8 @@ func updateGameLoop(conn *websocket.Conn, roomID string) {
 	}
 }
 
-func moveBlockDown(PlayerBlock [20][10]int) [20][10]int {
-	return PlayerBlock
+func moveBlockDown(curGameState GameState) GameState {
+	return curGameState
 }
 
 func main() {
