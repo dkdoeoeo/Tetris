@@ -1,7 +1,43 @@
-11/9更新
-前置需要下載的東東:
+前置準備:
 
-  明天晚上我在另一台新電腦測試
+    git設置:
+        
+	下載git:https://git-scm.com，創個帳號
+
+	給我你github的username，我邀你進git協作。(去信箱接受邀請)
+
+	看你習慣放哪，執行"git clone https://github.com/dkdoeoeo/Tetris.git"
+    
+    環境設置:
+
+	我自己是用visual studio code，去官網下載
+
+	開啟visual studio code後，選open folder，開啟你剛載的專案資料夾
+
+	前端:
+
+	    點開"./tetris-client/src/App.vue"，也會自動問你要不要載vue
+
+	    下載node.js後重開電腦。https://nodejs.org/zh-tw
+
+	    嘗試執行"node -v"、"npm -v"。
+	    
+    	    如果報錯已停用指令碼執行，以系統管理員身分執行PowerShell，執行:"Set-ExecutionPolicy RemoteSigned"後輸入y
+
+	    執行"npm install"
+
+	    到這邊應該可以執行"npm run dev"來讓前端跑起來了
+	
+	GO:
+
+   	    點開"./tetris-sever/main/main.go"會自動問你要不要載GO，載就對了。
+	
+	    然後跟你說找不到路徑，要先去GO官網載。https://go.dev/dl/
+
+	    重啟visual studio code按F5執行main.go十，再載一次應該就可以GO了
+
+	有其他問題再問我或是gpt
+
 
 前端:
 

@@ -19,7 +19,7 @@ export default {
   },
   mounted() {
     // 當組件加載時，建立 WebSocket 連線
-    this.socket = new WebSocket("ws://localhost:8081/game");
+    this.socket = new WebSocket("ws://192.168.0.14:8081/game");
 
     // 註冊 WebSocket 事件
     this.socket.onopen = () => {
