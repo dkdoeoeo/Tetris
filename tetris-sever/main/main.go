@@ -42,6 +42,10 @@ type GameState struct {
 	Player2_cur_block_pos  Pos
 	Player1_Hold_Block     string
 	Player2_Hold_Block     string
+	Player1_Next_Block     string
+	Player2_Next_Block     string
+	Player1_Eliminate_rows [20]int
+	Player2_Eliminate_rows [20]int
 }
 
 var (
@@ -139,6 +143,10 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 		conn.WriteJSON(rooms[roomID].Player2_garbage_line)
 		conn.WriteJSON(rooms[roomID].Player1_Hold_Block)
 		conn.WriteJSON(rooms[roomID].Player2_Hold_Block)
+		conn.WriteJSON(rooms[roomID].Player1_Next_Block)
+		conn.WriteJSON(rooms[roomID].Player2_Next_Block)
+		conn.WriteJSON(rooms[roomID].Player1_Eliminate_rows)
+		conn.WriteJSON(rooms[roomID].Player2_Eliminate_rows)
 	}
 }
 

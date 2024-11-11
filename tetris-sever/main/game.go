@@ -2,6 +2,12 @@ package main
 
 import "math/rand"
 
+// 定義方塊類型，包含中心座標和偏移量
+type TetrisBlock struct {
+	Pos     Pos       //方塊中心座標
+	Offsets [4][2]int // 方塊範圍的相對偏移座標 (共4個格子)
+}
+
 // 隨機生成方塊
 func generateRandomBlock() string {
 	blocks := []string{"I", "O", "T", "S", "Z", "L", "J"}
