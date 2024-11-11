@@ -106,41 +106,11 @@
 	}
 
     待做事項:
-
-	func update_game_status(Player int, Move string, curGameState GameState)
 	
-	    輸入哪個玩家以及操作，更新curGameState
+	根據對應方塊填上對應數字(目前都是1)
 
-	//執行方塊下落一格
-	func Move_Down(Player int, curGameState GameState) GameState 
-
-	//執行方塊左移一格
-	func Move_Left(Player int, curGameState GameState) GameState
-
-	//執行方塊右移一格
-	func Move_Right(Player int, curGameState GameState) GameState 
-
-	//執行方塊旋轉
-	func Rotate(Player int, curGameState GameState) GameState 
-
-	//執行方塊快速下降
-	func Soft_Drop(Player int, curGameState GameState) GameState 
-
-	//執行方塊瞬間下降
-	func Hard_Drop(Player int, curGameState GameState) GameState 
-
-	//執行暫存方塊
-	func Hold(Player int, curGameState GameState) GameState 
-
-	//檢查方塊是否衝突
-	func Check_collision(Player int, block_type string, block_pos Pos, curGameState GameState) bool 
-
-	//檢查row有沒有填滿
-	func Check_row_full(curGameState GameState) bool 
-
-	//消除row
-	func Eliminate_rows(curGameState GameState) bool 
-
+	測試整體功能
+	
 定義:
 
     GameState [20][10] int 內數字意義
