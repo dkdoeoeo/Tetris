@@ -47,7 +47,7 @@ func Hard_Drop(Player int, curGameState GameState) GameState {
 	return curGameState
 }
 
-////執行暫存方塊
+//執行暫存方塊
 func Hold(Player int, curGameState GameState) GameState {
 	return curGameState
 }

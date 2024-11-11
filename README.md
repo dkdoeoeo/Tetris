@@ -70,7 +70,12 @@
 
     訊息傳送格式:
 
-	ex:GameState
+	一開始分配Player編號:
+	{
+	    PlayerID int `json:"player_id"`
+	}
+	
+	後續更新的遊戲狀態
 	{
 	    Player1Block         [20][10]int
 	    Player2Block         [20][10]int
@@ -78,13 +83,8 @@
 	    Player2Score         int
     	    Player1_garbage_line int
 	    Player2_garbage_line int
-	    Player1_input        string
-	    Player2_input        string
-	}
-
-	ex:Player
-	{
-	    PlayerID int `json:"player_id"`
+	    Player1_Hold_Block   string
+	    Player2_Hold_Block   string
 	}
 
     待做事項:
@@ -93,9 +93,35 @@
 	
 	    輸入哪個玩家以及操作，更新curGameState
 
-	func moveBlockDown(curGameState GameState) GameState
-	    
-	    實現方塊下落
+	//執行方塊下落一格
+	func Move_Down(Player int, curGameState GameState) GameState 
+
+	//執行方塊左移一格
+	func Move_Left(Player int, curGameState GameState) GameState
+
+	//執行方塊右移一格
+	func Move_Right(Player int, curGameState GameState) GameState 
+
+	//執行方塊旋轉
+	func Rotate(Player int, curGameState GameState) GameState 
+
+	//執行方塊快速下降
+	func Soft_Drop(Player int, curGameState GameState) GameState 
+
+	//執行方塊瞬間下降
+	func Hard_Drop(Player int, curGameState GameState) GameState 
+
+	//執行暫存方塊
+	func Hold(Player int, curGameState GameState) GameState 
+
+	//檢查方塊是否衝突
+	func Check_collision(Player int, block_type string, block_pos Pos, curGameState GameState) bool 
+
+	//檢查row有沒有填滿
+	func Check_row_full(curGameState GameState) bool 
+
+	//消除row
+	func Eliminate_rows(curGameState GameState) bool 
 
 定義:
 
@@ -116,3 +142,12 @@
     6:L型方塊(深藍色)
 
     7:J型方塊(橘色)
+
+    玩家操作種類:
+	"left"
+	"right"
+	"rotate"
+	"soft_drop"
+	"hard_drop"
+	"hold"
+    ![方塊示意圖](./方塊示意圖.jpg)
