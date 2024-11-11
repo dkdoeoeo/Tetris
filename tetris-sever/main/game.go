@@ -44,3 +44,15 @@ func Hard_Drop(Player int, curGameState GameState) GameState {
 func Hold(Player int, curGameState GameState) GameState {
 	return curGameState
 }
+
+func Check_collision(Player int, move string, curGameState GameState) bool {
+	return true
+}
+
+func Check_row_full(curGameState GameState) bool {
+	return true
+}
+
+func Eliminate_rows(curGameState GameState) bool {
+	return true
+}
