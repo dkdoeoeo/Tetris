@@ -15,7 +15,7 @@ type TetrisBlock struct {
 
 var (
 	IBlock = TetrisBlock{
-		pos: Pos{x: 0, y: 0},
+		pos: Pos{x: 5, y: 0},
 		Offsets: [4][2]int{
 			{-1, 0}, // 左邊一格
 			{0, 0},  // 中心
@@ -25,7 +25,7 @@ var (
 	}
 
 	LBlock = TetrisBlock{
-		pos: Pos{x: 0, y: 0},
+		pos: Pos{x: 6, y: 1},
 		Offsets: [4][2]int{
 			{0, -1}, // 上方一格
 			{0, 0},  // 中心
@@ -35,7 +35,7 @@ var (
 	}
 
 	JBlock = TetrisBlock{
-		pos: Pos{x: 0, y: 0},
+		pos: Pos{x: 4, y: 1},
 		Offsets: [4][2]int{
 			{0, -1}, // 上方一格
 			{0, 0},  // 中心
@@ -45,7 +45,7 @@ var (
 	}
 
 	OBlock = TetrisBlock{
-		pos: Pos{x: 0, y: 0},
+		pos: Pos{x: 5, y: 1},
 		Offsets: [4][2]int{
 			{0, 0},  // 中心
 			{1, 0},  // 右邊一格
@@ -55,7 +55,7 @@ var (
 	}
 
 	ZBlock = TetrisBlock{
-		pos: Pos{x: 0, y: 0},
+		pos: Pos{x: 5, y: 1},
 		Offsets: [4][2]int{
 			{0, 0},   // 中心
 			{1, 0},   // 右邊一格
@@ -65,7 +65,7 @@ var (
 	}
 
 	SBlock = TetrisBlock{
-		pos: Pos{x: 0, y: 0},
+		pos: Pos{x: 5, y: 1},
 		Offsets: [4][2]int{
 			{0, 0},  // 中心
 			{-1, 0}, // 左邊一格
@@ -75,7 +75,7 @@ var (
 	}
 
 	TBlock = TetrisBlock{
-		pos: Pos{x: 0, y: 0},
+		pos: Pos{x: 5, y: 0},
 		Offsets: [4][2]int{
 			{0, 0},  // 中心
 			{-1, 0}, // 左邊一格
