@@ -36,10 +36,13 @@ export default {
       console.log("WebSocket Error:", error);
     };
 
-    this.socket.onmessage = (event) => {
-      // 監聽來自伺服器的消息
-      const gameState = JSON.parse(event.data); // 假設伺服器發送 JSON 資料
-      console.log("Received game state:", gameState);
+     // 接收後端訊息
+     this.socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.player_id) {
+        this.playerId = data.player_id;  // 設置玩家ID
+        console.log('玩家ID:', this.playerId);
+      }
     };
 
     // 監聽鍵盤事件
@@ -111,7 +114,7 @@ export default {
     sendMoveToServer(moveType) {
        // 使用 WebSocket 發送消息到伺服器
        const message = JSON.stringify({
-        player: 1,  // 依照玩家的ID設置
+        player: this.playerId,  // 依照玩家的ID設置
         move: moveType,
       });
       this.socket.send(message);  // 發送消息
