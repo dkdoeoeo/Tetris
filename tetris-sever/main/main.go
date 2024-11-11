@@ -197,7 +197,7 @@ func printInfo(curGameState GameState) {
 	for i := 0; i < len(curGameState.Player1_Block_Board); i++ {
 		for j := 0; j < len(curGameState.Player1_Block_Board[i]); j++ {
 			// 輸出每個格子
-			fmt.Print(curGameState.Player2_Block_Board[i][j], " ")
+			fmt.Print(curGameState.Player1_Block_Board[i][j], " ")
 		}
 		// 每列跳行
 		fmt.Println()
