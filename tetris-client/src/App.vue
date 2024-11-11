@@ -19,7 +19,7 @@ export default {
   },
   mounted() {
     // 當組件加載時，建立 WebSocket 連線
-    this.socket = new WebSocket("ws://192.168.0.14:8081/game");
+    this.socket = new WebSocket("ws://140.118.178.119:8080/game");
 
     // 註冊 WebSocket 事件
     this.socket.onopen = () => {
@@ -65,11 +65,14 @@ export default {
         case 'ArrowDown':
           this.accelerateFall();
           break;
-        case ' ':
+        case "ArrowUp":
           this.rotateBlock();
           break;
-        case 'p':
-          this.pauseGame();
+        case ' ':
+          this.hard_drop();
+          break;
+        case 'Shift':
+          this.hold();
           break;
         default:
           break;
@@ -88,22 +91,27 @@ export default {
     accelerateFall() {
       // 觸發加速下落
       console.log('Accelerate fall');
-      this.sendMoveToServer('down');
+      this.sendMoveToServer('soft_drop');
     },
     rotateBlock() {
       // 觸發旋轉操作
       console.log('Rotate block');
       this.sendMoveToServer('rotate');
     },
-    pauseGame() {
-      // 觸發暫停遊戲操作
-      console.log('Pause game');
-      this.sendMoveToServer('pause');
+    hard_drop() {
+      // 觸發加速下降操作
+      console.log('hard_drop');
+      this.sendMoveToServer('hard_drop');
+    },
+    hold() {
+      // 觸發加速下降操作
+      console.log('hold');
+      this.sendMoveToServer('hold');
     },
     sendMoveToServer(moveType) {
        // 使用 WebSocket 發送消息到伺服器
        const message = JSON.stringify({
-        player: 1,  // 或者依照玩家的ID設置
+        player: 1,  // 依照玩家的ID設置
         move: moveType,
       });
       this.socket.send(message);  // 發送消息

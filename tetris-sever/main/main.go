@@ -21,31 +21,27 @@ type Player struct {
 	PlayerID int `json:"player_id"`
 }
 
-type Pos struct {
-	x int
-	y int
-}
-
 // 定義遊戲狀態
 type GameState struct {
-	Player1Block           [20][10]int
-	Player2Block           [20][10]int
-	Player1Score           int
-	Player2Score           int
-	Player1_garbage_line   int
-	Player2_garbage_line   int
-	Player1_input          string
-	Player2_input          string
-	Player1_cur_block_type string
-	Player2_cur_block_type string
-	Player1_cur_block_pos  Pos
-	Player2_cur_block_pos  Pos
-	Player1_Hold_Block     string
-	Player2_Hold_Block     string
-	Player1_Next_Block     string
-	Player2_Next_Block     string
-	Player1_Eliminate_rows [20]int
-	Player2_Eliminate_rows [20]int
+	Player1_Block_Board          [20][10]int
+	Player2_Block_Board          [20][10]int
+	Player1Score                 int
+	Player2Score                 int
+	Player1_garbage_line         int
+	Player2_garbage_line         int
+	Player1_cur_block_type       string
+	Player2_cur_block_type       string
+	Player1_cur_block            TetrisBlock
+	Player2_cur_block            TetrisBlock
+	Player1_Hold_Block_type      string
+	Player2_Hold_Block_type      string
+	Player1_Next_Block           string
+	Player2_Next_Block           string
+	Player1_Eliminate_rows       [20]int
+	Player2_Eliminate_rows       [20]int
+	Player1_This_Round_Hold_flag bool
+	Player2_This_Round_Hold_flag bool
+	ifGameOver                   int //0遊戲繼續、1玩家一獲勝、2玩家二獲勝
 }
 
 var (
@@ -72,6 +68,26 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// 將GameState需要的東西初始化
+func initGameState() GameState {
+	player1BlockType := generateRandomBlockType()
+	player2BlockType := generateRandomBlockType()
+	player1Block := generateRandomBlock(player1BlockType)
+	player2Block := generateRandomBlock(player2BlockType)
+
+	newGameState := GameState{
+		Player1_cur_block_type: player1BlockType,
+		Player2_cur_block_type: player2BlockType,
+		Player1_cur_block:      player1Block,
+		Player2_cur_block:      player2Block,
+		Player1_Next_Block:     generateRandomBlockType(),
+		Player2_Next_Block:     generateRandomBlockType(),
+	}
+	newGameState.Player1_Block_Board = fillBoardWithBlock(newGameState.Player1_Block_Board, player1Block)
+	newGameState.Player2_Block_Board = fillBoardWithBlock(newGameState.Player2_Block_Board, player2Block)
+	return newGameState
+}
+
 // 處理每個客戶端的 WebSocket 連線
 func handleConnection(conn *websocket.Conn) {
 	// 先將玩家加入等待隊列
@@ -88,7 +104,7 @@ func handleConnection(conn *websocket.Conn) {
 		roomID := createRoom()
 
 		// 初始化遊戲狀態
-		rooms[roomID] = GameState{}
+		rooms[roomID] = initGameState()
 
 		// 分配玩家編號
 		player1 := Player{PlayerID: 1}
@@ -134,19 +150,57 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 		//updateGameState 函數來處理遊戲邏輯
 		rooms[roomID] = update_game_status(input.Player, input.Move, rooms[roomID])
 
+		if rooms[roomID].ifGameOver != 0 {
+			//處理勝負
+		}
+
 		// 傳送更新後雙方遊戲盤面、分數、垃圾行數量
-		conn.WriteJSON(rooms[roomID].Player1Block)
-		conn.WriteJSON(rooms[roomID].Player2Block)
+		conn.WriteJSON(rooms[roomID].Player1_Block_Board)
+		conn.WriteJSON(rooms[roomID].Player2_Block_Board)
 		conn.WriteJSON(rooms[roomID].Player1Score)
 		conn.WriteJSON(rooms[roomID].Player2Score)
 		conn.WriteJSON(rooms[roomID].Player1_garbage_line)
 		conn.WriteJSON(rooms[roomID].Player2_garbage_line)
-		conn.WriteJSON(rooms[roomID].Player1_Hold_Block)
-		conn.WriteJSON(rooms[roomID].Player2_Hold_Block)
+		conn.WriteJSON(rooms[roomID].Player1_Hold_Block_type)
+		conn.WriteJSON(rooms[roomID].Player2_Hold_Block_type)
 		conn.WriteJSON(rooms[roomID].Player1_Next_Block)
 		conn.WriteJSON(rooms[roomID].Player2_Next_Block)
 		conn.WriteJSON(rooms[roomID].Player1_Eliminate_rows)
 		conn.WriteJSON(rooms[roomID].Player2_Eliminate_rows)
+		//test
+		printInfo(rooms[roomID])
+	}
+}
+
+// test
+func printInfo(curGameState GameState) {
+	fmt.Print("\033[H\033[2J")
+	fmt.Print("Player1Score: ")
+	fmt.Print(curGameState.Player1Score)
+	fmt.Println()
+	fmt.Print("Player1_Hold_Block_type: ")
+	fmt.Print(curGameState.Player1_Hold_Block_type)
+	fmt.Println()
+	fmt.Print("Player1_Next_Block: ")
+	fmt.Print(curGameState.Player1_Next_Block)
+	fmt.Println()
+	fmt.Print("Player1_This_Round_Hold_flag: ")
+	fmt.Print(curGameState.Player1_This_Round_Hold_flag)
+	fmt.Println()
+	fmt.Print("Player1_cur_block_type: ")
+	fmt.Print(curGameState.Player1_cur_block_type)
+	fmt.Println()
+	fmt.Print("Player1_garbage_line: ")
+	fmt.Print(curGameState.Player1_garbage_line)
+	fmt.Println()
+
+	for i := 0; i < len(curGameState.Player1_Block_Board); i++ {
+		for j := 0; j < len(curGameState.Player1_Block_Board[i]); j++ {
+			// 輸出每個格子
+			fmt.Print(curGameState.Player1_Block_Board[i][j], " ")
+		}
+		// 每列跳行
+		fmt.Println()
 	}
 }
 
@@ -159,11 +213,15 @@ func updateGameLoop(Player1_conn *websocket.Conn, Player2_conn *websocket.Conn, 
 		curGameState := rooms[roomID]
 
 		// 讓方塊向下移動
-		curGameState = Move_Down(1, curGameState)
-		curGameState = Move_Down(2, curGameState)
+		//curGameState = Move_Down(1, curGameState)
+		//curGameState = Move_Down(2, curGameState)
 
 		// 更新遊戲狀態
 		rooms[roomID] = curGameState
+
+		if rooms[roomID].ifGameOver != 0 {
+			//處理勝負
+		}
 
 		// 向房間內的玩家廣播更新後的遊戲狀態
 		Player1_conn.WriteJSON(rooms[roomID])
@@ -187,5 +245,5 @@ func main() {
 		handleConnection(conn)
 	})
 
-	r.Run(":8081")
+	r.Run(":8080")
 }
