@@ -21,16 +21,27 @@ type Player struct {
 	PlayerID int `json:"player_id"`
 }
 
+type Pos struct {
+	x int
+	y int
+}
+
 // 定義遊戲狀態
 type GameState struct {
-	Player1Block         [20][10]int
-	Player2Block         [20][10]int
-	Player1Score         int
-	Player2Score         int
-	Player1_garbage_line int
-	Player2_garbage_line int
-	Player1_input        string
-	Player2_input        string
+	Player1Block           [20][10]int
+	Player2Block           [20][10]int
+	Player1Score           int
+	Player2Score           int
+	Player1_garbage_line   int
+	Player2_garbage_line   int
+	Player1_input          string
+	Player2_input          string
+	Player1_cur_block_type string
+	Player2_cur_block_type string
+	Player1_cur_block_pos  Pos
+	Player2_cur_block_pos  Pos
+	Player1_Hold_Block     string
+	Player2_Hold_Block     string
 }
 
 var (
@@ -55,12 +66,6 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
-}
-
-// 隨機生成方塊
-func generateRandomBlock() string {
-	blocks := []string{"I", "O", "T", "S", "Z", "L", "J"}
-	return blocks[rand.Intn(len(blocks))]
 }
 
 // 處理每個客戶端的 WebSocket 連線
@@ -97,8 +102,7 @@ func handleConnection(conn *websocket.Conn) {
 		waitingPlayers = waitingPlayers[2:]
 		go listenForPlayerInput(player1Conn, roomID)
 		go listenForPlayerInput(player2Conn, roomID)
-		go updateGameLoop(player1Conn, roomID)
-		go updateGameLoop(player2Conn, roomID)
+		go updateGameLoop(player1Conn, player2Conn, roomID)
 	} else {
 		// 如果還沒有對手，告知玩家等候
 		conn.WriteJSON(map[string]string{"message": "Waiting for another player"})
@@ -116,9 +120,6 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 			break
 		}
 
-		// 根據玩家操作更新遊戲狀態
-		// 假設 msg 是一個包含操作的 JSON 字串
-		// 例如：{ "player": 1, "move": "left" }
 		var input PlayerMove
 		err = json.Unmarshal(msg, &input)
 		if err != nil {
@@ -126,45 +127,40 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 			break
 		}
 
-		// 假設有一個 updateGameState 函數來處理遊戲邏輯
+		//updateGameState 函數來處理遊戲邏輯
 		rooms[roomID] = update_game_status(input.Player, input.Move, rooms[roomID])
 
-		// 傳送更新後的遊戲狀態
-		conn.WriteJSON(rooms[roomID])
+		// 傳送更新後雙方遊戲盤面、分數、垃圾行數量
+		conn.WriteJSON(rooms[roomID].Player1Block)
+		conn.WriteJSON(rooms[roomID].Player2Block)
+		conn.WriteJSON(rooms[roomID].Player1Score)
+		conn.WriteJSON(rooms[roomID].Player2Score)
+		conn.WriteJSON(rooms[roomID].Player1_garbage_line)
+		conn.WriteJSON(rooms[roomID].Player2_garbage_line)
+		conn.WriteJSON(rooms[roomID].Player1_Hold_Block)
+		conn.WriteJSON(rooms[roomID].Player2_Hold_Block)
 	}
-}
-
-func update_game_status(Player int, Move string, curGameState GameState) GameState {
-	if Player == 1 {
-		curGameState.Player1_input = Move
-	} else if Player == 2 {
-		curGameState.Player2_input = Move
-	}
-	return curGameState
 }
 
 // 定期更新遊戲狀態的函數
-func updateGameLoop(conn *websocket.Conn, roomID string) {
+func updateGameLoop(Player1_conn *websocket.Conn, Player2_conn *websocket.Conn, roomID string) {
 	ticker := time.NewTicker(1 * time.Second) // 設置每秒更新一次
 	defer ticker.Stop()
 
 	for range ticker.C {
 		curGameState := rooms[roomID]
 
-		// 自動讓方塊向下移動（可以根據遊戲規則更新）
-		curGameState = moveBlockDown(curGameState)
-		curGameState = moveBlockDown(curGameState)
+		// 讓方塊向下移動
+		curGameState = Move_Down(1, curGameState)
+		curGameState = Move_Down(2, curGameState)
 
 		// 更新遊戲狀態
 		rooms[roomID] = curGameState
 
 		// 向房間內的玩家廣播更新後的遊戲狀態
-		conn.WriteJSON(rooms[roomID])
+		Player1_conn.WriteJSON(rooms[roomID])
+		Player2_conn.WriteJSON(rooms[roomID])
 	}
-}
-
-func moveBlockDown(curGameState GameState) GameState {
-	return curGameState
 }
 
 func main() {
