@@ -150,4 +150,5 @@
 	"soft_drop"
 	"hard_drop"
 	"hold"
-    ![方塊示意圖](block_definition.jpg)
+![方塊示意圖](block_definition.jpg)
+
