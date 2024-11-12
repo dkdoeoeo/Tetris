@@ -7,8 +7,9 @@ type Pos struct {
 
 // 定義方塊類型，包含中心座標和偏移量
 type TetrisBlock struct {
-	pos     Pos       //方塊中心座標
-	Offsets [4][2]int // 方塊範圍的相對偏移座標 (共4個格子)
+	pos       Pos       //方塊中心座標
+	Offsets   [4][2]int // 方塊範圍的相對偏移座標 (共4個格子)
+	boardType int
 }
 
 var (
@@ -20,6 +21,7 @@ var (
 			{1, 0},  // 右邊一格
 			{2, 0},  // 最右邊
 		},
+		boardType: 1,
 	}
 
 	LBlock = TetrisBlock{
@@ -30,6 +32,7 @@ var (
 			{-1, 0}, // 左邊一格
 			{-2, 0}, // 最左邊
 		},
+		boardType: 6,
 	}
 
 	JBlock = TetrisBlock{
@@ -40,6 +43,7 @@ var (
 			{1, 0},  // 右邊一格
 			{2, 0},  // 最右邊
 		},
+		boardType: 7,
 	}
 
 	OBlock = TetrisBlock{
@@ -50,6 +54,7 @@ var (
 			{0, -1}, // 上方一格
 			{1, -1}, // 右上角
 		},
+		boardType: 2,
 	}
 
 	ZBlock = TetrisBlock{
@@ -60,6 +65,7 @@ var (
 			{0, -1},  // 上方一格
 			{-1, -1}, // 左上角
 		},
+		boardType: 5,
 	}
 
 	SBlock = TetrisBlock{
@@ -70,6 +76,7 @@ var (
 			{0, -1}, // 上方一格
 			{1, -1}, // 右上角
 		},
+		boardType: 4,
 	}
 
 	TBlock = TetrisBlock{
@@ -80,5 +87,6 @@ var (
 			{1, 0},  // 右邊一格
 			{0, 1},  // 下方一格
 		},
+		boardType: 3,
 	}
 )

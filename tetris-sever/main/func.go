@@ -50,7 +50,7 @@ func fillBoardWithBlock(curBoard [20][10]int, newBlock TetrisBlock) [20][10]int 
 		y := newBlock.pos.y + offset[1]
 
 		if x >= 0 && x < 10 && y >= 0 && y < 20 {
-			curBoard[y][x] = 1 // 在新的板上對應的位置設置為 1
+			curBoard[y][x] = newBlock.boardType // 在新的板上對應的位置設置為對應的值
 		} else {
 			fmt.Println("fillBoardWithNewBlock Error")
 			return curBoard
