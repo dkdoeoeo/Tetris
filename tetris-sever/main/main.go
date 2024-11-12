@@ -13,7 +13,7 @@ import (
 )
 
 type PlayerMove struct {
-	Player int    `json:"player`
+	Player int    `json:"player"`
 	Move   string `json:"move"`
 }
 
