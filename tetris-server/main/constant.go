@@ -1,5 +1,16 @@
 package main
 
+const (
+	failRotate = 0
+	origin     = 1
+	up         = 2
+	left       = 3
+	right      = 4
+	left2      = 5
+	right2     = 6
+	down       = 7
+)
+
 type Pos struct {
 	x int
 	y int

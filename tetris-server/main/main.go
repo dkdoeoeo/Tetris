@@ -193,6 +193,9 @@ func printInfo(curGameState GameState) {
 	fmt.Print("Player1_garbage_line: ")
 	fmt.Print(curGameState.Player1_garbage_line)
 	fmt.Println()
+	fmt.Print("ifGameOver: ")
+	fmt.Print(curGameState.ifGameOver)
+	fmt.Println()
 
 	for i := 0; i < len(curGameState.Player1_Block_Board); i++ {
 		for j := 0; j < len(curGameState.Player1_Block_Board[i]); j++ {

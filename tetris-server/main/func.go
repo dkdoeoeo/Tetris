@@ -44,6 +44,47 @@ func generateRandomBlock(BlockType string) TetrisBlock {
 	return IBlock
 }
 
+func tryRotate(tryChangeBlock TetrisBlock, tmpboard [20][10]int) int {
+	if Check_collision(tryChangeBlock, tmpboard) {
+		return origin
+	}
+
+	tryChangeBlock.pos.x = tryChangeBlock.pos.x - 1
+	if Check_collision(tryChangeBlock, tmpboard) {
+		return left
+	}
+
+	tryChangeBlock.pos.x = tryChangeBlock.pos.x + 2
+	if Check_collision(tryChangeBlock, tmpboard) {
+		return right
+	}
+
+	tryChangeBlock.pos.x = tryChangeBlock.pos.x - 1
+	tryChangeBlock.pos.y = tryChangeBlock.pos.y - 1
+	if Check_collision(tryChangeBlock, tmpboard) {
+		return up
+	}
+
+	tryChangeBlock.pos.y = tryChangeBlock.pos.y + 1
+	tryChangeBlock.pos.x = tryChangeBlock.pos.x - 2
+	if Check_collision(tryChangeBlock, tmpboard) {
+		return left2
+	}
+
+	tryChangeBlock.pos.x = tryChangeBlock.pos.x + 4
+	if Check_collision(tryChangeBlock, tmpboard) {
+		return right2
+	}
+
+	tryChangeBlock.pos.x = tryChangeBlock.pos.x - 4
+	tryChangeBlock.pos.y = tryChangeBlock.pos.y + 1
+	if Check_collision(tryChangeBlock, tmpboard) {
+		return down
+	}
+
+	return failRotate
+}
+
 func fillBoardWithBlock(curBoard [20][10]int, newBlock TetrisBlock) [20][10]int {
 	for _, offset := range newBlock.Offsets {
 		x := newBlock.pos.x + offset[0]
@@ -75,14 +116,7 @@ func removeBoardWithBlock(curBoard [20][10]int, curBlock TetrisBlock) [20][10]in
 }
 
 // 檢查方塊是否衝突,如果沒有就把tryChangeBlock填入並回傳新的tmpboard
-func Check_collision(Player int, tryChangeBlock TetrisBlock, curGameState GameState) (bool, *[20][10]int) {
-	var tmpboard [20][10]int
-
-	if Player == 1 {
-		tmpboard = removeBoardWithBlock(curGameState.Player1_Block_Board, curGameState.Player1_cur_block) //暫時移除當前方塊
-	} else {
-		tmpboard = removeBoardWithBlock(curGameState.Player2_Block_Board, curGameState.Player2_cur_block) //暫時移除當前方塊
-	}
+func Check_collision(tryChangeBlock TetrisBlock, tmpboard [20][10]int) bool {
 
 	for _, offset := range tryChangeBlock.Offsets {
 		x := tryChangeBlock.pos.x + offset[0]
@@ -90,16 +124,16 @@ func Check_collision(Player int, tryChangeBlock TetrisBlock, curGameState GameSt
 
 		if x >= 0 && x < 10 && y >= 0 && y < 20 {
 			if tmpboard[y][x] != 0 { //位置已經有方塊
-				return false, nil
+				return false
 			}
 		} else {
-			return false, nil //超出範圍
+			return false //超出範圍
 		}
 	}
 
 	tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 
-	return true, &tmpboard
+	return true
 }
 
 // 將next block切換成當前方塊並生成新的next block

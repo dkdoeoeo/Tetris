@@ -28,11 +28,13 @@ func Move_Down(Player int, curGameState GameState) GameState {
 	if Player == 1 {
 		tryChangeBlock := curGameState.Player1_cur_block
 		tryChangeBlock.pos.y = tryChangeBlock.pos.y + 1
-		flag, tmpboard := Check_collision(Player, tryChangeBlock, curGameState)
+		tmpboard := removeBoardWithBlock(curGameState.Player1_Block_Board, curGameState.Player1_cur_block)
+		flag := Check_collision(tryChangeBlock, tmpboard)
 
 		if flag {
+			tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 			curGameState.Player1_cur_block.pos.y += 1
-			curGameState.Player1_Block_Board = *tmpboard
+			curGameState.Player1_Block_Board = tmpboard
 		} else {
 			curGameState = Check_row_full(Player, curGameState)
 			curGameState = Eliminate_rows(Player, curGameState)
@@ -42,11 +44,13 @@ func Move_Down(Player int, curGameState GameState) GameState {
 	} else {
 		tryChangeBlock := curGameState.Player2_cur_block
 		tryChangeBlock.pos.y = tryChangeBlock.pos.y + 1
-		flag, tmpboard := Check_collision(Player, tryChangeBlock, curGameState)
+		tmpboard := removeBoardWithBlock(curGameState.Player2_Block_Board, curGameState.Player2_cur_block)
+		flag := Check_collision(tryChangeBlock, tmpboard)
 
 		if flag {
+			tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 			curGameState.Player2_cur_block.pos.y += 1
-			curGameState.Player2_Block_Board = *tmpboard
+			curGameState.Player2_Block_Board = tmpboard
 		} else {
 			curGameState = Check_row_full(Player, curGameState)
 			curGameState = Eliminate_rows(Player, curGameState)
@@ -62,20 +66,24 @@ func Move_Left(Player int, curGameState GameState) GameState {
 	if Player == 1 {
 		tryChangeBlock := curGameState.Player1_cur_block
 		tryChangeBlock.pos.x = tryChangeBlock.pos.x - 1
-		flag, tmpboard := Check_collision(Player, tryChangeBlock, curGameState)
+		tmpboard := removeBoardWithBlock(curGameState.Player1_Block_Board, curGameState.Player1_cur_block)
+		flag := Check_collision(tryChangeBlock, tmpboard)
 
 		if flag {
+			tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 			curGameState.Player1_cur_block.pos.x -= 1
-			curGameState.Player1_Block_Board = *tmpboard
+			curGameState.Player1_Block_Board = tmpboard
 		}
 	} else {
 		tryChangeBlock := curGameState.Player2_cur_block
 		tryChangeBlock.pos.x = tryChangeBlock.pos.x - 1
-		flag, tmpboard := Check_collision(Player, tryChangeBlock, curGameState)
+		tmpboard := removeBoardWithBlock(curGameState.Player2_Block_Board, curGameState.Player2_cur_block)
+		flag := Check_collision(tryChangeBlock, tmpboard)
 
 		if flag {
+			tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 			curGameState.Player2_cur_block.pos.x -= 1
-			curGameState.Player2_Block_Board = *tmpboard
+			curGameState.Player2_Block_Board = tmpboard
 		}
 	}
 	return curGameState
@@ -86,20 +94,24 @@ func Move_Right(Player int, curGameState GameState) GameState {
 	if Player == 1 {
 		tryChangeBlock := curGameState.Player1_cur_block
 		tryChangeBlock.pos.x = tryChangeBlock.pos.x + 1
-		flag, tmpboard := Check_collision(Player, tryChangeBlock, curGameState)
+		tmpboard := removeBoardWithBlock(curGameState.Player1_Block_Board, curGameState.Player1_cur_block)
+		flag := Check_collision(tryChangeBlock, tmpboard)
 
 		if flag {
+			tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 			curGameState.Player1_cur_block.pos.x += 1
-			curGameState.Player1_Block_Board = *tmpboard
+			curGameState.Player1_Block_Board = tmpboard
 		}
 	} else {
 		tryChangeBlock := curGameState.Player2_cur_block
 		tryChangeBlock.pos.x = tryChangeBlock.pos.x + 1
-		flag, tmpboard := Check_collision(Player, tryChangeBlock, curGameState)
+		tmpboard := removeBoardWithBlock(curGameState.Player2_Block_Board, curGameState.Player2_cur_block)
+		flag := Check_collision(tryChangeBlock, tmpboard)
 
 		if flag {
+			tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 			curGameState.Player2_cur_block.pos.x += 1
-			curGameState.Player2_Block_Board = *tmpboard
+			curGameState.Player2_Block_Board = tmpboard
 		}
 	}
 	return curGameState
@@ -108,21 +120,57 @@ func Move_Right(Player int, curGameState GameState) GameState {
 // 執行方塊旋轉
 func Rotate(Player int, curGameState GameState) GameState {
 	if Player == 1 {
-		tryChangeBlock := Rotate90(curGameState.Player1_cur_block)
-		flag, tmpboard := Check_collision(Player, tryChangeBlock, curGameState)
+		tryChangeBlock := curGameState.Player1_cur_block
+		tryChangeBlock = Rotate90(tryChangeBlock)
+		tmpboard := removeBoardWithBlock(curGameState.Player1_Block_Board, curGameState.Player1_cur_block)
 
-		if flag {
-			curGameState.Player1_cur_block = Rotate90(curGameState.Player1_cur_block)
-			curGameState.Player1_Block_Board = *tmpboard
+		switch tryRotate(tryChangeBlock, tmpboard) {
+		case failRotate:
+			return curGameState
+		case origin:
+		case left:
+			tryChangeBlock.pos.x = tryChangeBlock.pos.x - 1
+		case right:
+			tryChangeBlock.pos.x = tryChangeBlock.pos.x + 1
+		case up:
+			tryChangeBlock.pos.y = tryChangeBlock.pos.y - 1
+		case left2:
+			tryChangeBlock.pos.x = tryChangeBlock.pos.x - 2
+		case right2:
+			tryChangeBlock.pos.x = tryChangeBlock.pos.x + 2
+		case down:
+			tryChangeBlock.pos.y = tryChangeBlock.pos.y + 1
 		}
+
+		tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
+		curGameState.Player1_cur_block = tryChangeBlock
+		curGameState.Player1_Block_Board = tmpboard
 	} else {
-		tryChangeBlock := Rotate90(curGameState.Player2_cur_block)
-		flag, tmpboard := Check_collision(Player, tryChangeBlock, curGameState)
+		tryChangeBlock := curGameState.Player2_cur_block
+		tryChangeBlock = Rotate90(tryChangeBlock)
+		tmpboard := removeBoardWithBlock(curGameState.Player2_Block_Board, curGameState.Player2_cur_block)
 
-		if flag {
-			curGameState.Player2_cur_block = Rotate90(curGameState.Player2_cur_block)
-			curGameState.Player2_Block_Board = *tmpboard
+		switch tryRotate(tryChangeBlock, tmpboard) {
+		case failRotate:
+			return curGameState
+		case origin:
+		case left:
+			tryChangeBlock.pos.x = tryChangeBlock.pos.x - 1
+		case right:
+			tryChangeBlock.pos.x = tryChangeBlock.pos.x + 1
+		case up:
+			tryChangeBlock.pos.y = tryChangeBlock.pos.y - 1
+		case left2:
+			tryChangeBlock.pos.x = tryChangeBlock.pos.x - 2
+		case right2:
+			tryChangeBlock.pos.x = tryChangeBlock.pos.x + 2
+		case down:
+			tryChangeBlock.pos.y = tryChangeBlock.pos.y + 1
 		}
+
+		tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
+		curGameState.Player2_cur_block = tryChangeBlock
+		curGameState.Player2_Block_Board = tmpboard
 	}
 	return curGameState
 }
@@ -139,11 +187,13 @@ func Hard_Drop(Player int, curGameState GameState) GameState {
 		if Player == 1 {
 			tryChangeBlock := curGameState.Player1_cur_block
 			tryChangeBlock.pos.y = tryChangeBlock.pos.y + 1
-			flag, tmpboard := Check_collision(Player, tryChangeBlock, curGameState)
+			tmpboard := removeBoardWithBlock(curGameState.Player1_Block_Board, curGameState.Player1_cur_block)
+			flag := Check_collision(tryChangeBlock, tmpboard)
 
 			if flag {
+				tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 				curGameState.Player1_cur_block.pos.y += 1
-				curGameState.Player1_Block_Board = *tmpboard
+				curGameState.Player1_Block_Board = tmpboard
 			} else {
 				curGameState = Check_row_full(Player, curGameState)
 				curGameState = Eliminate_rows(Player, curGameState)
@@ -154,11 +204,12 @@ func Hard_Drop(Player int, curGameState GameState) GameState {
 		} else {
 			tryChangeBlock := curGameState.Player2_cur_block
 			tryChangeBlock.pos.y = tryChangeBlock.pos.y + 1
-			flag, tmpboard := Check_collision(Player, tryChangeBlock, curGameState)
+			tmpboard := removeBoardWithBlock(curGameState.Player2_Block_Board, curGameState.Player2_cur_block)
+			flag := Check_collision(tryChangeBlock, tmpboard)
 
 			if flag {
 				curGameState.Player2_cur_block.pos.y += 1
-				curGameState.Player2_Block_Board = *tmpboard
+				curGameState.Player2_Block_Board = tmpboard
 			} else {
 				curGameState = Check_row_full(Player, curGameState)
 				curGameState = Eliminate_rows(Player, curGameState)
