@@ -221,17 +221,43 @@ func Check_row_full(Player int, curGameState GameState) GameState {
 
 // 消除行
 func Eliminate_rows(Player int, curGameState GameState) GameState {
+	var full_row_num = 0
 	if Player == 1 {
 		for row := 0; row < len(curGameState.Player1_Eliminate_rows); row++ {
 			if curGameState.Player1_Eliminate_rows[row] != 0 { //該列滿了
 				moveBlocksDown(&curGameState.Player1_Block_Board, row) //清空
+				full_row_num++
 			}
 		}
 	} else {
 		for row := 0; row < len(curGameState.Player2_Eliminate_rows); row++ {
 			if curGameState.Player2_Eliminate_rows[row] != 0 { //該列滿了
 				moveBlocksDown(&curGameState.Player2_Block_Board, row) //清空
+				full_row_num++
 			}
+		}
+	}
+	if Player == 1 {
+		switch full_row_num {
+		case 1:
+			curGameState.Player1Score += 40
+		case 2:
+			curGameState.Player1Score += 100
+		case 3:
+			curGameState.Player1Score += 300
+		case 4:
+			curGameState.Player1Score += 1200
+		}
+	} else {
+		switch full_row_num {
+		case 1:
+			curGameState.Player2Score += 40
+		case 2:
+			curGameState.Player2Score += 100
+		case 3:
+			curGameState.Player2Score += 300
+		case 4:
+			curGameState.Player2Score += 1200
 		}
 	}
 	return curGameState

@@ -70,9 +70,9 @@ var upgrader = websocket.Upgrader{
 
 // 將GameState需要的東西初始化
 func initGameState() GameState {
-	player1BlockType := generateRandomBlockType()
+	player1BlockType := generateRandomBlockType() //知道下個方塊是哪種方塊
 	player2BlockType := generateRandomBlockType()
-	player1Block := generateRandomBlock(player1BlockType)
+	player1Block := generateRandomBlock(player1BlockType) //變成IBlock、OBlock等
 	player2Block := generateRandomBlock(player2BlockType)
 
 	newGameState := GameState{
@@ -83,6 +83,7 @@ func initGameState() GameState {
 		Player1_Next_Block:     generateRandomBlockType(),
 		Player2_Next_Block:     generateRandomBlockType(),
 	}
+	//靶心的方塊填到curBoard裡
 	newGameState.Player1_Block_Board = fillBoardWithBlock(newGameState.Player1_Block_Board, player1Block)
 	newGameState.Player2_Block_Board = fillBoardWithBlock(newGameState.Player2_Block_Board, player2Block)
 	return newGameState

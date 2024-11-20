@@ -15,6 +15,25 @@ export default {
       connected: false,  // 用來顯示連線狀態
       player1Move: null,
       socket: null,  // WebSocket 客戶端
+      playerId: null,
+      Player1_Block_Board: Array.from({ length: 20 }, () => Array(10).fill(0)),
+      Player2_Block_Board: Array.from({ length: 20 }, () => Array(10).fill(0)),
+      player1Score: 0,  // 玩家1分數
+      player2Score: 0,  // 玩家2分數
+      Player1_garbage_line: null,
+      Player2_garbage_line: null,
+      Player1_cur_block_type: null,
+      Player2_cur_block_type: null,
+      Player1_cur_block: Array.from({ length: 4 }, () => Array(2).fill(0)),
+      Player2_cur_block: Array.from({ length: 4 }, () => Array(2).fill(0)),
+      Player1_Hold_Block_type: null,
+      Player2_Hold_Block_type: null,
+      Player1_Next_Block: null,
+      Player2_Next_Block: null,
+      Player1_Eliminate_rows: Array.from({ length: 20 }),
+      Player2_Eliminate_rows: Array.from({ length: 20 }),
+      Player1_This_Round_Hold_flag: null,
+      Player2_This_Round_Hold_flag: null,
     };
   },
   mounted() {
@@ -43,6 +62,7 @@ export default {
         this.playerId = data.player_id;  // 設置玩家ID
         console.log('玩家ID:', this.playerId);
       }
+      
     };
 
     // 監聽鍵盤事件
