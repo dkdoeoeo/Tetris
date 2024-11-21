@@ -1,6 +1,6 @@
 package main
 
-//更新遊戲以及相關操作函式
+// 更新遊戲以及相關操作函式
 func update_game_status(Player int, Move string, curGameState GameState) GameState {
 	//重設Eliminate_rows
 	curGameState.Player1_Eliminate_rows = [20]int{}

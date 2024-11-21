@@ -11,6 +11,23 @@ const (
 	down       = 7
 )
 
+const (
+	empty       = 0
+	typeI       = 1
+	typeO       = 2
+	typeT       = 3
+	typeS       = 4
+	typeZ       = 5
+	typeL       = 6
+	typeJ       = 7
+	typeGarbage = 8
+)
+
+const (
+	row = 20
+	col = 10
+)
+
 type Pos struct {
 	x int
 	y int

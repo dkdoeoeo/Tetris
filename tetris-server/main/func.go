@@ -7,6 +7,9 @@ import (
 
 // 這邊開始是一些會用到的函數
 func Rotate90(block TetrisBlock) TetrisBlock {
+	if block.boardType == typeO {
+		return block
+	}
 	var rotatedBlock = block
 	for i, offset := range block.Offsets {
 		dx, dy := offset[0], offset[1]
@@ -243,10 +246,13 @@ func Eliminate_rows(Player int, curGameState GameState) GameState {
 			curGameState.Player1Score += 40
 		case 2:
 			curGameState.Player1Score += 100
+			curGameState.Player1_garbage_line += 1
 		case 3:
 			curGameState.Player1Score += 300
+			curGameState.Player1_garbage_line += 2
 		case 4:
 			curGameState.Player1Score += 1200
+			curGameState.Player1_garbage_line += 4
 		}
 	} else {
 		switch full_row_num {
@@ -254,11 +260,28 @@ func Eliminate_rows(Player int, curGameState GameState) GameState {
 			curGameState.Player2Score += 40
 		case 2:
 			curGameState.Player2Score += 100
+			curGameState.Player2_garbage_line += 1
 		case 3:
 			curGameState.Player2Score += 300
+			curGameState.Player2_garbage_line += 2
 		case 4:
 			curGameState.Player2Score += 1200
+			curGameState.Player2_garbage_line += 4
 		}
+	}
+	return curGameState
+}
+
+func generateGarbageLine(Player int, curGameState GameState) GameState {
+	if Player == 1 {
+		for i := 0; i < curGameState.Player1_garbage_line; i++ {
+			moveBlocksUp(&curGameState.Player1_Block_Board)
+			for j := 0; j < 10; j++ {
+				curGameState.Player1_Block_Board[19][j] = typeGarbage
+			}
+			curGameState.Player1_Block_Board[19][rand.Intn(10)] = 0
+		}
+		curGameState.Player1_garbage_line = 0
 	}
 	return curGameState
 }
@@ -269,5 +292,22 @@ func moveBlocksDown(a *[20][10]int, row int) {
 		for c := 0; c < len(a[r]); c++ {
 			a[r][c] = a[r-1][c] // 將上方的方塊下移一列
 		}
+	}
+}
+
+func moveBlocksUp(a *[20][10]int) {
+	// 從下往上遍歷，將 row 之上的每一列的方塊下移一列
+	// for r := row; r > 0; r-- {
+	// 	for c := 0; c < len(a[r]); c++ {
+	// 		a[r][c] = a[r-1][c] // 將上方的方塊下移一列
+	// 	}
+	// }
+	for r := 0; r < row-1; r++ {
+		for c := 0; c < len(a[r]); c++ {
+			a[r][c] = a[r+1][c]
+		}
+	}
+	for c := 0; c < len(a[row-1]); c++ {
+		a[row-1][c] = 0
 	}
 }
