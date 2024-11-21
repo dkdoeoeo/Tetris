@@ -90,19 +90,17 @@
 	}
 	
 	後續更新的遊戲狀態
-	{
-	    Player1Block         [20][10]int
-	    Player2Block         [20][10]int
-	    Player1Score         int
-	    Player2Score         int
-    	    Player1_garbage_line int
-	    Player2_garbage_line int
-	    Player1_Hold_Block   string
-	    Player2_Hold_Block   string
-	    Player1_Next_Block   string
-	    Player2_Next_Block   string
-	    Player1_Eliminate_rows [20]int
-	    Player2_Eliminate_rows [20]int
+	{ 	//[0]:玩家1、[1]:玩家2
+	    Player_Block_Board          [2][20][10]int
+		PlayerScore                 [2]int
+		Player_garbage_line         [2]int
+		Player_cur_block_type       [2]string
+		Player_cur_block            [2]TetrisBlock
+		Player_Hold_Block_type      [2]string
+		Player_Next_Block           [2]string
+		Player_Eliminate_rows       [2][20]int
+		Player_This_Round_Hold_flag [2]bool
+		ifGameOver                  int //0遊戲繼續、1玩家一獲勝、2玩家二獲勝
 	}
 
     待做事項:

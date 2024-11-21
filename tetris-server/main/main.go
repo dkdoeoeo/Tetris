@@ -23,25 +23,16 @@ type Player struct {
 
 // 定義遊戲狀態
 type GameState struct {
-	Player1_Block_Board          [20][10]int
-	Player2_Block_Board          [20][10]int
-	Player1Score                 int
-	Player2Score                 int
-	Player1_garbage_line         int
-	Player2_garbage_line         int
-	Player1_cur_block_type       string
-	Player2_cur_block_type       string
-	Player1_cur_block            TetrisBlock
-	Player2_cur_block            TetrisBlock
-	Player1_Hold_Block_type      string
-	Player2_Hold_Block_type      string
-	Player1_Next_Block           string
-	Player2_Next_Block           string
-	Player1_Eliminate_rows       [20]int
-	Player2_Eliminate_rows       [20]int
-	Player1_This_Round_Hold_flag bool
-	Player2_This_Round_Hold_flag bool
-	ifGameOver                   int //0遊戲繼續、1玩家一獲勝、2玩家二獲勝
+	Player_Block_Board          [2][20][10]int
+	PlayerScore                 [2]int
+	Player_garbage_line         [2]int
+	Player_cur_block_type       [2]string
+	Player_cur_block            [2]TetrisBlock
+	Player_Hold_Block_type      [2]string
+	Player_Next_Block           [2]string
+	Player_Eliminate_rows       [2][20]int
+	Player_This_Round_Hold_flag [2]bool
+	ifGameOver                  int //0遊戲繼續、1玩家一獲勝、2玩家二獲勝
 }
 
 var (
@@ -76,16 +67,13 @@ func initGameState() GameState {
 	player2Block := generateRandomBlock(player2BlockType)
 
 	newGameState := GameState{
-		Player1_cur_block_type: player1BlockType,
-		Player2_cur_block_type: player2BlockType,
-		Player1_cur_block:      player1Block,
-		Player2_cur_block:      player2Block,
-		Player1_Next_Block:     generateRandomBlockType(),
-		Player2_Next_Block:     generateRandomBlockType(),
+		Player_cur_block_type: [2]string{player1BlockType, player2BlockType},
+		Player_cur_block:      [2]TetrisBlock{player1Block, player2Block},
+		Player_Next_Block:     [2]string{generateRandomBlockType(), generateRandomBlockType()},
 	}
-	//靶心的方塊填到curBoard裡
-	newGameState.Player1_Block_Board = fillBoardWithBlock(newGameState.Player1_Block_Board, player1Block)
-	newGameState.Player2_Block_Board = fillBoardWithBlock(newGameState.Player2_Block_Board, player2Block)
+	//把新的方塊填到curBoard裡
+	newGameState.Player_Block_Board[0] = fillBoardWithBlock(newGameState.Player_Block_Board[0], player1Block)
+	newGameState.Player_Block_Board[1] = fillBoardWithBlock(newGameState.Player_Block_Board[1], player2Block)
 	return newGameState
 }
 
@@ -156,18 +144,13 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 		}
 
 		// 傳送更新後雙方遊戲盤面、分數、垃圾行數量
-		conn.WriteJSON(rooms[roomID].Player1_Block_Board)
-		conn.WriteJSON(rooms[roomID].Player2_Block_Board)
-		conn.WriteJSON(rooms[roomID].Player1Score)
-		conn.WriteJSON(rooms[roomID].Player2Score)
-		conn.WriteJSON(rooms[roomID].Player1_garbage_line)
-		conn.WriteJSON(rooms[roomID].Player2_garbage_line)
-		conn.WriteJSON(rooms[roomID].Player1_Hold_Block_type)
-		conn.WriteJSON(rooms[roomID].Player2_Hold_Block_type)
-		conn.WriteJSON(rooms[roomID].Player1_Next_Block)
-		conn.WriteJSON(rooms[roomID].Player2_Next_Block)
-		conn.WriteJSON(rooms[roomID].Player1_Eliminate_rows)
-		conn.WriteJSON(rooms[roomID].Player2_Eliminate_rows)
+		conn.WriteJSON(rooms[roomID].Player_Block_Board)
+		conn.WriteJSON(rooms[roomID].PlayerScore)
+		conn.WriteJSON(rooms[roomID].Player_garbage_line)
+		conn.WriteJSON(rooms[roomID].Player_Hold_Block_type)
+		conn.WriteJSON(rooms[roomID].Player_Next_Block)
+		conn.WriteJSON(rooms[roomID].Player_Eliminate_rows)
+		conn.WriteJSON(rooms[roomID].ifGameOver)
 		//test
 		printInfo(rooms[roomID])
 	}
@@ -177,31 +160,31 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 func printInfo(curGameState GameState) {
 	fmt.Print("\033[H\033[2J")
 	fmt.Print("Player1Score: ")
-	fmt.Print(curGameState.Player1Score)
+	fmt.Print(curGameState.PlayerScore[0])
 	fmt.Println()
 	fmt.Print("Player1_Hold_Block_type: ")
-	fmt.Print(curGameState.Player1_Hold_Block_type)
+	fmt.Print(curGameState.Player_Hold_Block_type[0])
 	fmt.Println()
 	fmt.Print("Player1_Next_Block: ")
-	fmt.Print(curGameState.Player1_Next_Block)
+	fmt.Print(curGameState.Player_Next_Block[0])
 	fmt.Println()
 	fmt.Print("Player1_This_Round_Hold_flag: ")
-	fmt.Print(curGameState.Player1_This_Round_Hold_flag)
+	fmt.Print(curGameState.Player_This_Round_Hold_flag[0])
 	fmt.Println()
 	fmt.Print("Player1_cur_block_type: ")
-	fmt.Print(curGameState.Player1_cur_block_type)
+	fmt.Print(curGameState.Player_cur_block_type[0])
 	fmt.Println()
 	fmt.Print("Player1_garbage_line: ")
-	fmt.Print(curGameState.Player1_garbage_line)
+	fmt.Print(curGameState.Player_garbage_line[0])
 	fmt.Println()
 	fmt.Print("ifGameOver: ")
 	fmt.Print(curGameState.ifGameOver)
 	fmt.Println()
 
-	for i := 0; i < len(curGameState.Player1_Block_Board); i++ {
-		for j := 0; j < len(curGameState.Player1_Block_Board[i]); j++ {
+	for i := 0; i < len(curGameState.Player_Block_Board[0]); i++ {
+		for j := 0; j < len(curGameState.Player_Block_Board[0][i]); j++ {
 			// 輸出每個格子
-			fmt.Print(curGameState.Player1_Block_Board[i][j], " ")
+			fmt.Print(curGameState.Player_Block_Board[0][i][j], " ")
 		}
 		// 每列跳行
 		fmt.Println()

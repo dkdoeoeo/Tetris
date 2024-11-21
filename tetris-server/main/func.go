@@ -141,148 +141,84 @@ func Check_collision(tryChangeBlock TetrisBlock, tmpboard [20][10]int) bool {
 
 // 將next block切換成當前方塊並生成新的next block
 func switchNextBlock(Player int, curGameState GameState) GameState {
-	if Player == 1 {
-		//切換當前方塊
-		curGameState.Player1_cur_block_type = curGameState.Player1_Next_Block
-		curGameState.Player1_cur_block = generateRandomBlock(curGameState.Player1_Next_Block)
-		//檢查新的方塊是否可以加入
-		for _, offset := range curGameState.Player1_cur_block.Offsets {
-			x := curGameState.Player1_cur_block.pos.x + offset[0]
-			y := curGameState.Player1_cur_block.pos.y + offset[1]
+	//切換當前方塊
+	curGameState.Player_cur_block_type[Player-1] = curGameState.Player_Next_Block[Player-1]
+	curGameState.Player_cur_block[Player-1] = generateRandomBlock(curGameState.Player_Next_Block[Player-1])
+	//檢查新的方塊是否可以加入
+	for _, offset := range curGameState.Player_cur_block[Player-1].Offsets {
+		x := curGameState.Player_cur_block[Player-1].pos.x + offset[0]
+		y := curGameState.Player_cur_block[Player-1].pos.y + offset[1]
 
-			if x >= 0 && x < 10 && y >= 0 && y < 20 {
-				if curGameState.Player1_Block_Board[y][x] != 0 { //位置已經有方塊
-					curGameState.ifGameOver = 2 //玩家二獲勝
-					return curGameState         //處理玩家落敗
-				}
+		if x >= 0 && x < 10 && y >= 0 && y < 20 {
+			if curGameState.Player_Block_Board[Player-1][y][x] != 0 { //位置已經有方塊
+				curGameState.ifGameOver = 3 - Player //另一位玩家獲勝
+				return curGameState                  //處理玩家落敗
 			}
 		}
-		//填上新方塊位置
-		curGameState.Player1_Block_Board = fillBoardWithBlock(curGameState.Player1_Block_Board, curGameState.Player1_cur_block)
-		//生成新的Next_Block
-		curGameState.Player1_Next_Block = generateRandomBlockType()
-	} else {
-		//切換當前方塊
-		curGameState.Player2_cur_block_type = curGameState.Player2_Next_Block
-		curGameState.Player2_cur_block = generateRandomBlock(curGameState.Player2_Next_Block)
-		//檢查新的方塊是否可以加入
-		for _, offset := range curGameState.Player2_cur_block.Offsets {
-			x := curGameState.Player2_cur_block.pos.x + offset[0]
-			y := curGameState.Player2_cur_block.pos.y + offset[1]
-
-			if x >= 0 && x < 10 && y >= 0 && y < 20 {
-				if curGameState.Player2_Block_Board[y][x] != 0 { //位置已經有方塊
-					curGameState.ifGameOver = 1 //玩家一獲勝
-					return curGameState         //玩家落敗
-				}
-			}
-		}
-		//填上新方塊位置
-		curGameState.Player2_Block_Board = fillBoardWithBlock(curGameState.Player2_Block_Board, curGameState.Player2_cur_block)
-		//生成新的Next_Block
-		curGameState.Player2_Next_Block = generateRandomBlockType()
 	}
+	//填上新方塊位置
+	curGameState.Player_Block_Board[Player-1] = fillBoardWithBlock(curGameState.Player_Block_Board[Player-1], curGameState.Player_cur_block[Player-1])
+	//生成新的Next_Block
+	curGameState.Player_Next_Block[Player-1] = generateRandomBlockType()
 
 	return curGameState
 }
 
 // 檢查row有沒有填滿，紀錄在curGameState.Player_Eliminate_rows
 func Check_row_full(Player int, curGameState GameState) GameState {
-	if Player == 1 {
-		for row := 0; row < len(curGameState.Player1_Block_Board); row++ {
-			full := true
-			for col := 0; col < len(curGameState.Player1_Block_Board[row]); col++ {
-				if curGameState.Player1_Block_Board[row][col] == 0 {
-					full = false
-					break // 如果有任何元素是 0，這一列不滿
-				}
-			}
-			if full {
-				curGameState.Player1_Eliminate_rows[row] = 1 // 如果該列滿了，設為 1
-			} else {
-				curGameState.Player1_Eliminate_rows[row] = 0 // 否則設為 0
+	for row := 0; row < len(curGameState.Player_Block_Board[Player-1]); row++ {
+		full := true
+		for col := 0; col < len(curGameState.Player_Block_Board[Player-1][row]); col++ {
+			if curGameState.Player_Block_Board[Player-1][row][col] == 0 {
+				full = false
+				break // 如果有任何元素是 0，這一列不滿
 			}
 		}
-	} else {
-		for row := 0; row < len(curGameState.Player2_Block_Board); row++ {
-			full := true
-			for col := 0; col < len(curGameState.Player2_Block_Board[row]); col++ {
-				if curGameState.Player2_Block_Board[row][col] == 0 {
-					full = false
-					break // 如果有任何元素是 0，這一列不滿
-				}
-			}
-			if full {
-				curGameState.Player2_Eliminate_rows[row] = 1 // 如果該列滿了，設為 1
-			} else {
-				curGameState.Player2_Eliminate_rows[row] = 0 // 否則設為 0
-			}
+		if full {
+			curGameState.Player_Eliminate_rows[Player-1][row] = 1 // 如果該列滿了，設為 1
+		} else {
+			curGameState.Player_Eliminate_rows[Player-1][row] = 0 // 否則設為 0
 		}
 	}
+
 	return curGameState
 }
 
 // 消除行
 func Eliminate_rows(Player int, curGameState GameState) GameState {
 	var full_row_num = 0
-	if Player == 1 {
-		for row := 0; row < len(curGameState.Player1_Eliminate_rows); row++ {
-			if curGameState.Player1_Eliminate_rows[row] != 0 { //該列滿了
-				moveBlocksDown(&curGameState.Player1_Block_Board, row) //清空
-				full_row_num++
-			}
-		}
-	} else {
-		for row := 0; row < len(curGameState.Player2_Eliminate_rows); row++ {
-			if curGameState.Player2_Eliminate_rows[row] != 0 { //該列滿了
-				moveBlocksDown(&curGameState.Player2_Block_Board, row) //清空
-				full_row_num++
-			}
+	for row := 0; row < len(curGameState.Player_Eliminate_rows[Player-1]); row++ {
+		if curGameState.Player_Eliminate_rows[Player-1][row] != 0 { //該列滿了
+			moveBlocksDown(&curGameState.Player_Block_Board[Player-1], row) //清空
+			full_row_num++
 		}
 	}
-	if Player == 1 {
-		switch full_row_num {
-		case 1:
-			curGameState.Player1Score += 40
-		case 2:
-			curGameState.Player1Score += 100
-			curGameState.Player1_garbage_line += 1
-		case 3:
-			curGameState.Player1Score += 300
-			curGameState.Player1_garbage_line += 2
-		case 4:
-			curGameState.Player1Score += 1200
-			curGameState.Player1_garbage_line += 4
-		}
-	} else {
-		switch full_row_num {
-		case 1:
-			curGameState.Player2Score += 40
-		case 2:
-			curGameState.Player2Score += 100
-			curGameState.Player2_garbage_line += 1
-		case 3:
-			curGameState.Player2Score += 300
-			curGameState.Player2_garbage_line += 2
-		case 4:
-			curGameState.Player2Score += 1200
-			curGameState.Player2_garbage_line += 4
-		}
+
+	switch full_row_num {
+	case 1:
+		curGameState.PlayerScore[Player-1] += 40
+	case 2:
+		curGameState.PlayerScore[Player-1] += 100
+		curGameState.Player_garbage_line[Player-1] += 1
+	case 3:
+		curGameState.PlayerScore[Player-1] += 300
+		curGameState.Player_garbage_line[Player-1] += 2
+	case 4:
+		curGameState.PlayerScore[Player-1] += 1200
+		curGameState.Player_garbage_line[Player-1] += 4
 	}
 	return curGameState
 }
 
 func generateGarbageLine(Player int, curGameState GameState) GameState {
-	if Player == 1 {
-		for i := 0; i < curGameState.Player1_garbage_line; i++ {
-			moveBlocksUp(&curGameState.Player1_Block_Board)
-			for j := 0; j < 10; j++ {
-				curGameState.Player1_Block_Board[19][j] = typeGarbage
-			}
-			curGameState.Player1_Block_Board[19][rand.Intn(10)] = 0
+	for i := 0; i < curGameState.Player_garbage_line[Player-1]; i++ {
+		moveBlocksUp(&curGameState.Player_Block_Board[Player-1])
+		for j := 0; j < 10; j++ {
+			curGameState.Player_Block_Board[Player-1][19][j] = typeGarbage
 		}
-		curGameState.Player1_garbage_line = 0
+		curGameState.Player_Block_Board[Player-1][19][rand.Intn(10)] = 0
 	}
+	curGameState.Player_garbage_line[Player-1] = 0
 	return curGameState
 }
 
@@ -302,12 +238,12 @@ func moveBlocksUp(a *[20][10]int) {
 	// 		a[r][c] = a[r-1][c] // 將上方的方塊下移一列
 	// 	}
 	// }
-	for r := 0; r < row-1; r++ {
+	for r := 0; r < Row-1; r++ {
 		for c := 0; c < len(a[r]); c++ {
 			a[r][c] = a[r+1][c]
 		}
 	}
-	for c := 0; c < len(a[row-1]); c++ {
-		a[row-1][c] = 0
+	for c := 0; c < len(a[Row-1]); c++ {
+		a[Row-1][c] = 0
 	}
 }
