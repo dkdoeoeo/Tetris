@@ -1,22 +1,14 @@
-<template>
-  <div>
-    <!-- 顯示遊戲畫面 -->
-    <h1>Tetris Game</h1>
-    <p v-if="connected">Successfully connected to the server!</p>
-    <p v-else>Waiting for connection...</p>
-    <TetrisBoard :Board="Player1_Block_Board"></TetrisBoard>
-  </div>
-</template>
-
 <script setup>
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch, getCurrentInstance } from 'vue';
 import TetrisBoard from '@/components/TetrisBoard.vue';
 let connected = ref(false)
 let socket;
 let playerId;
 
-let Player1_Block_Board = reactive([]);
-let Player2_Block_Board = reactive([]);
+let Player1_Block_Board = ref(Array.from({ length: 20 }, 
+                                    () => Array(10).fill(0)));
+let Player2_Block_Board = ref(Array.from({ length: 20 }, 
+                                    () => Array(10).fill(0)));
 
 // export default {
 //   data() {
@@ -67,12 +59,17 @@ onMounted(() => {
      // 接收後端訊息
      socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      
       if (data.player_id) {
         playerId = data.player_id;  // 設置玩家ID
         console.log('玩家ID:', playerId);
       }
-      Player1_Block_Board = data.Player_Block_Board[0]
-      Player2_Block_Board = data.Player_Block_Board[1]    
+      
+      if(data.Player_Block_Board) {
+        // make sure vue notice the change
+        Player1_Block_Board.value = data.Player_Block_Board[0]
+        Player2_Block_Board.value = data.Player_Block_Board[1]
+      }
     }
   })
 
@@ -156,10 +153,42 @@ onUnmounted(() => {
     }
   })
 
+// watch([() => Player1_Block_Board, () => Player2_Block_Board], ([newP1Board, newP2Board]) => {
+//   Player1_Block_Board = newP1Board;
+//   Player2_Block_Board = newP2Board;
+//   console.log("parent watch detected change")
+// })
+
 window.addEventListener("keydown", handleKeyDown);
 
 </script>
 
+<template>
+  <div id = "AppContainer">
+    <h1>Tetris Game</h1>
+    <p v-if="connected">Successfully connected to the server!</p>
+    <p v-else>Waiting for connection...</p>
+    <div id="TetrisBoardContainer">
+      <TetrisBoard :Board=Player1_Block_Board></TetrisBoard>
+      <TetrisBoard :Board=Player2_Block_Board></TetrisBoard>
+    </div>
+  </div>
+</template>
+
 <style scoped>
-/* 這裡可以加上樣式 */
+#AppContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content:space-between;
+  width: 100%;
+  height: auto;
+}
+
+#TetrisBoardContainer{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+}
 </style>
