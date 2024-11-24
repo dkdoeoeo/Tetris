@@ -20,6 +20,8 @@
 
 	    下載node.js後重開電腦。https://nodejs.org/zh-tw
 
+		cd 到 ./tetris-client
+
 	    嘗試執行"node -v"、"npm -v"。
 	    
     	    如果報錯已停用指令碼執行，以系統管理員身分執行PowerShell，執行:"Set-ExecutionPolicy RemoteSigned"後輸入y
