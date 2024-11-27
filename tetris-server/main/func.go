@@ -199,13 +199,13 @@ func Eliminate_rows(Player int, curGameState GameState) GameState {
 		curGameState.PlayerScore[Player-1] += 40
 	case 2:
 		curGameState.PlayerScore[Player-1] += 100
-		curGameState.Player_garbage_line[Player-1] += 1
+		curGameState.Player_garbage_line[2-Player] += 1
 	case 3:
 		curGameState.PlayerScore[Player-1] += 300
-		curGameState.Player_garbage_line[Player-1] += 2
+		curGameState.Player_garbage_line[2-Player] += 2
 	case 4:
 		curGameState.PlayerScore[Player-1] += 1200
-		curGameState.Player_garbage_line[Player-1] += 4
+		curGameState.Player_garbage_line[2-Player] += 4
 	}
 	return curGameState
 }
