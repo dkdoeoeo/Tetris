@@ -144,13 +144,14 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 		}
 
 		// 傳送更新後雙方遊戲盤面、分數、垃圾行數量
-		conn.WriteJSON(rooms[roomID].Player_Block_Board)
-		conn.WriteJSON(rooms[roomID].PlayerScore)
-		conn.WriteJSON(rooms[roomID].Player_garbage_line)
-		conn.WriteJSON(rooms[roomID].Player_Hold_Block_type)
-		conn.WriteJSON(rooms[roomID].Player_Next_Block)
-		conn.WriteJSON(rooms[roomID].Player_Eliminate_rows)
-		conn.WriteJSON(rooms[roomID].ifGameOver)
+		// conn.WriteJSON(rooms[roomID].Player_Block_Board)
+		// conn.WriteJSON(rooms[roomID].PlayerScore)
+		// conn.WriteJSON(rooms[roomID].Player_garbage_line)
+		// conn.WriteJSON(rooms[roomID].Player_Hold_Block_type)
+		// conn.WriteJSON(rooms[roomID].Player_Next_Block)
+		// conn.WriteJSON(rooms[roomID].Player_Eliminate_rows)
+		// conn.WriteJSON(rooms[roomID].ifGameOver)
+		conn.WriteJSON(rooms[roomID])
 		//test
 		printInfo(rooms[roomID])
 	}
