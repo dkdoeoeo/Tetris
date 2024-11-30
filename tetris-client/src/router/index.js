@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import TwoPlayerModeView from '@/views/TwoPlayerModeView.vue'
 import MainMenuView from '@/views/MainMenuView.vue'
+import Options from '@/views/Options.vue'
 import { ref } from 'vue'
 
 
@@ -17,6 +18,12 @@ const router = createRouter({
       path: '/2player',
       name: 'TwoPlayerMode',
       component: TwoPlayerModeView,
+      meta: {}
+    },
+    {
+      path: '/Options',
+      name: 'Options',
+      component: Options,
       meta: {}
     },
 

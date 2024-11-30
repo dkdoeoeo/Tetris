@@ -1,8 +1,9 @@
 <script setup>
-import { onMounted, onUnmounted, ref} from 'vue';
-import TetrisBoard from '@/components/TetrisBoard.vue';
+import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import TetrisBoard from '@/components/TetrisUI.vue';
 
 let connected = ref(false)
+let opponentFound = ref(false)
 let socket;
 let playerId;
 
@@ -11,7 +12,9 @@ let Player1_Block_Board = ref(Array.from({ length: 20 },
 let Player2_Block_Board = ref(Array.from({ length: 20 }, 
                                     () => Array(10).fill(0)));
 
-let redrawTetrisBoardCounter = ref(0)
+let redrawTetrisUICounter = ref(0)
+let boardHeight = ref(0)
+let TetrisUIContainerRef = useTemplateRef("TetrisUIContainerRef")
 
 // export default {
 //   data() {
@@ -41,6 +44,8 @@ let redrawTetrisBoardCounter = ref(0)
 //     };
 //   },
 
+
+
 onMounted(() => {
 
     // 當組件加載時，建立 WebSocket 連線
@@ -61,22 +66,23 @@ onMounted(() => {
     };
 
      // 接收後端訊息
-     socket.onmessage = (event) => {
-       const data = JSON.parse(event.data);
-       
-       if (data.player_id) {
-         playerId = data.player_id;  // 設置玩家ID
-         console.log('玩家ID:', playerId);
-        }
-        
-        if(data.Player_Block_Board) {
-          // make sure vue notice the change
-          Player1_Block_Board.value = data.Player_Block_Board[0]
-          Player2_Block_Board.value = data.Player_Block_Board[1]
-          redrawTetrisBoardCounter.value += 1
-        }
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      
+      if (data.player_id) {
+        opponentFound.value = true
+        playerId = data.player_id;  // 設置玩家ID
+        console.log('玩家ID:', playerId);
       }
-
+      
+      if(data.Player_Block_Board) {
+        // make sure vue notice the change
+        Player1_Block_Board.value = data.Player_Block_Board[0]
+        Player2_Block_Board.value = data.Player_Block_Board[1]
+        redrawTetrisUICounter.value += 1
+      }
+    }
+    
   })
 
 const moveLeft = () => {
@@ -158,8 +164,19 @@ onUnmounted(() => {
     }
   })
 
+
+
+const handleResize = () => {
+  if(!TetrisUIContainerRef.value) return
+  boardHeight.value = TetrisUIContainerRef.value.clientHeight
+}
+
+//check resize if TetrisBoardRerenders
+watch(redrawTetrisUICounter, handleResize)
+
 // window.addEventListener("keydown", handleKeyDown);
 window.addEventListener("keydown", handleKeyDown);
+window.addEventListener("resize", handleResize);
 
 </script>
 
@@ -167,10 +184,19 @@ window.addEventListener("keydown", handleKeyDown);
   <!-- <h1>Tetris Game</h1>
   <p v-if="connected">Successfully connected to the server!</p>
   <p v-else>Waiting for connection...</p> -->
-  <div id="TetrisBoardContainer" class=" flex flex-row justify-around h-full w-full">
-    <TetrisBoard :Board=Player1_Block_Board :key="`Player1_${redrawTetrisBoardCounter}`"></TetrisBoard>
-    <TetrisBoard :Board=Player2_Block_Board :key="`Player2_${redrawTetrisBoardCounter}`"></TetrisBoard>   
+
+  <div class="flex flex-col justify-center items-center h-screen w-screen">
+    <div v-show="!opponentFound">
+      <h1>
+        Looking for your next nemesis...
+      </h1>
+    </div>
+    <div v-show="opponentFound" id="TetrisUIContainer" ref="TetrisUIContainerRef" class="relative flex flex-row justify-around h-screen w-screen">
+      <TetrisBoard :Board=Player1_Block_Board :key="`Player1_${redrawTetrisUICounter}`" :UIHeight="boardHeight"></TetrisBoard>
+      <TetrisBoard :Board=Player2_Block_Board :key="`Player2_${redrawTetrisUICounter}`" :UIHeight="boardHeight"></TetrisBoard>   
+    </div>
   </div>
+
 </template>
 
 <style lang="scss" scoped>
