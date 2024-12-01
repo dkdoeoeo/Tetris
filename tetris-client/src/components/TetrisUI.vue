@@ -14,6 +14,10 @@ const props = defineProps({
     type: String,
     Required: true
   },
+  HoldBlockType: {
+    type: String,
+    Required: true
+  },
   Score: {
     type:Number,
     Required: true
@@ -26,6 +30,7 @@ let cellBgColor = "linear-gradient(145deg, #4c9ed9, #2a6f91)"
 // board
 // const boardRef = useTemplateRef('TetrisBoardRef')
 let boardHeight = ref(0)
+let boardWidth = ref(0)
 let cellSideLength = ref(0)
 let cellPadding = ref(0)
 
@@ -39,13 +44,21 @@ let nextBlockDisplay = ref([
         [0, 0, 0, 0]
       ])
 
-
+// hold block
+let holdBlockSideLength = ref(0)
+let holdBlockColor = ""
+let holdBlockDisplay = ref([
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+      ])
 
 const resizeBoard = () => { 
   // set height to a factor of BoardHeight
   let heightFactor = 0.8
   boardHeight.value = props.UIHeight * heightFactor
-
+  boardWidth.value = boardHeight.value * 0.5
   // //  totalWidth = boardHeight.value * 0.5 + boardHeight.value * 0.3
   // let totalWidth = boardHeight.value * 0.8
   // let totalWidthBound = window.innerWidth * 0.3
@@ -60,13 +73,17 @@ const resizeBoard = () => {
   nextBlockSideLength.value = boardHeight.value * 0.3
 }
 
-const calNextBlockDisplay = () => {
-  let nextBlockType = props.NextBlockType
-  console.log(nextBlockType)
-  switch (nextBlockType) {
+const calDisplays = () => {
+  let blockTypes = [props.NextBlockType, props.holdBlockDisplay]
+  let blockDisplay;
+  let blockColor;
+
+  for (let index = 0; index < 2; index++) {
+    let blockType = blockTypes[index];
+    switch (blockType) {
       case "I":
-        nextBlockColor = 'lightblue'
-        nextBlockDisplay.value = [
+        blockColor = 'lightblue'
+        blockDisplay = [
           [0, 0, 0, 0],
           [0, 0, 0, 0],
           [1, 1, 1, 1],
@@ -74,8 +91,8 @@ const calNextBlockDisplay = () => {
         ]
         break
       case "L":
-        nextBlockColor = 'orange'
-        nextBlockDisplay.value = [
+        blockColor = 'orange'
+        blockDisplay = [
           [0, 0, 0, 0],
           [0, 1, 0, 0],
           [0, 1, 0, 0],
@@ -83,8 +100,8 @@ const calNextBlockDisplay = () => {
         ]
         break
       case "J":
-        nextBlockColor = 'darkblue'
-        nextBlockDisplay.value = [
+        blockColor = 'darkblue'
+        blockDisplay = [
           [0, 0, 0, 0],
           [0, 0, 1, 0],
           [0, 0, 1, 0],
@@ -92,8 +109,8 @@ const calNextBlockDisplay = () => {
         ]
         break
       case "O":
-        nextBlockColor = 'yellow'
-        nextBlockDisplay.value = [
+        blockColor = 'yellow'
+        blockDisplay = [
           [0, 0, 0, 0],
           [0, 1, 1, 0],
           [0, 1, 1, 0],
@@ -101,8 +118,8 @@ const calNextBlockDisplay = () => {
         ]
         break
       case "Z":
-        nextBlockColor = 'red'
-        nextBlockDisplay.value = [
+        blockColor = 'red'
+        blockDisplay = [
           [0, 0, 0],
           [1, 1, 0],
           [0, 1, 1],
@@ -110,8 +127,8 @@ const calNextBlockDisplay = () => {
         ]
         break
       case "S":
-        nextBlockColor = 'green'
-        nextBlockDisplay.value = [
+        blockColor = 'green'
+        blockDisplay = [
           [0, 0, 0],
           [0, 1, 1],
           [1, 1, 0],
@@ -119,8 +136,8 @@ const calNextBlockDisplay = () => {
         ]
         break
       case "T":
-        nextBlockColor = 'purple'
-        nextBlockDisplay.value = [
+        blockColor = 'purple'
+        blockDisplay = [
           [0, 0, 0],
           [0, 1, 0],
           [1, 1, 1],
@@ -128,6 +145,18 @@ const calNextBlockDisplay = () => {
         ]
         break
     }
+    
+    if (index == 0) { //NextBlockType
+      nextBlockColor = blockColor
+      nextBlockDisplay.value = blockDisplay
+    }
+    else { //HoldBlockType
+      holdBlockColor = blockColor
+      holdBlockDisplay.value = blockDisplay
+
+    }
+  }
+  
 }
 
 // ================================ Board ==============================
@@ -194,7 +223,7 @@ const getBoardRowStyle = (rowIndex) => {
 
 
 
-// ================================ Next Block (Preview) ==============================
+// ================================ Next Block ==============================
 const getNextBlockCellStyle = (rowIndex, colIndex) => {
 
   if (nextBlockDisplay.value[rowIndex][colIndex] == 1) {
@@ -215,32 +244,54 @@ const getNextBlockCellStyle = (rowIndex, colIndex) => {
     }
   }
 }
-// ================================ Next Block (Preview) ==============================
+// ================================ Next Block ==============================
 
+// ================================ Hold Block ==============================
+const getHoldBlockCellStyle = (rowIndex, colIndex) => {
+
+if (holdBlockDisplay.value[rowIndex][colIndex] == 1) {
+  return {
+    width: `${cellSideLength.value}px`,
+    height: `${cellSideLength.value}px`,
+    border: `${cellPadding.value}px solid`,
+    borderColor: `lightgray gray gray lightgray`,
+    backgroundClip: `content-box`,
+    backgroundColor:`${holdBlockColor}`,
+  }
+}
+else {
+  return {
+    width: `${cellSideLength.value}px`,
+    height: `${cellSideLength.value}px`,
+    backgroundColor:`transparent`,
+  }
+}
+}
+// ================================ Hold Block ==============================
 
 const resizeCallback = () => {
   resizeBoard()
 }
 
 // watch(props.UIHeight, ()=>{resizeBoard()})
-watch(() => props.NextBlockType, calNextBlockDisplay)
+watch(() => props.NextBlockType, calDisplays)
 
 onMounted(() => {
   resizeBoard()
-  calNextBlockDisplay()
+  calDisplays()
   window.addEventListener("resize", resizeCallback)
 })
 
 </script>
 
 <template>
-  <div id="TetrisUI" class="relative flex flex-row justify-center gap-3 items-start min-h-min min-w-min" :style="{height: `${UIHeight}`,}">
+  <div id="TetrisUI" class="relative flex flex-row justify-center gap-3 items-start min-h-min min-w-min " :style="{height: `${UIHeight}`,}">
     <div class="flex flex-col gap-7">
       <div class="relative flex flex-col items-center justify-between border-black rounded-3xl border-4 min-h-min p-2" :style="{width: `${nextBlockSideLength}px`}">
         <h2 class="font-jersey text-5xl whitespace-nowrap">Next Block:</h2>
         <div id="NextBlock" class="flex flex-col justify-center items-center">
-          <div v-for="(row, previewRowIndex) in nextBlockDisplay" :key="`preview_row_${previewRowIndex}`" class="flex flex-row justify-center gap-0" :style="{width: `${cellSideLength * nextBlockDisplay.length}px`, height: `${cellSideLength}px`}">
-            <span v-for="(cellVal, previewColIndex) in row" :key="`preview_cell_${previewRowIndex * nextBlockDisplay.length + previewColIndex}`" class="" :style="getNextBlockCellStyle(previewRowIndex, previewColIndex)">
+          <div v-for="(row, nextBlockRowIndex) in nextBlockDisplay" :key="`next_row_${nextBlockRowIndex}`" class="flex flex-row justify-center gap-0" :style="{width: `${cellSideLength * nextBlockDisplay.length}px`, height: `${cellSideLength}px`}">
+            <span v-for="(cellVal, nextBlockColIndex) in row" :key="`next_cell_${nextBlockRowIndex * nextBlockDisplay.length + nextBlockColIndex}`" class="" :style="getNextBlockCellStyle(nextBlockRowIndex, nextBlockColIndex)">
             </span>
           </div>
         </div>
@@ -248,10 +299,10 @@ onMounted(() => {
       <div class="relative flex flex-col items-center justify-between border-black rounded-3xl border-4 min-h-min p-2" :style="{width: `${nextBlockSideLength}px`, height: `${nextBlockSideLength * 0.3}px`}">
         <h2 class="font-jersey text-5xl whitespace-nowrap">Score:</h2>
         <h2 class="font-jersey text-5xl whitespace-nowrap">{{ Score }}</h2>
-
       </div>
     </div>
-    <div id="board" ref="TetrisBoardRef" class="flex gap-0 flex-col relative aspect-[1/2]" :style="{height: `${boardHeight}px`}">
+    
+    <div id="board" ref="TetrisBoardRef" class="flex gap-0 flex-col relative aspect-[1/2] border-[10px] border-solid rounded-3xl border-black" :style="{height: `${boardHeight + 20}px`, width: `${boardWidth + 20}px`}">
       <div v-for="(row, rowIndex) in Board" :key="`row_${rowIndex}`" 
       class="absolute"
       :style="getBoardRowStyle(rowIndex)">
@@ -259,6 +310,17 @@ onMounted(() => {
         class="absolute min-w-2 min-h-2" 
         :style = "getBoardCellStyle(rowIndex, colIndex)">
         </span>
+      </div>
+    </div>
+    <div class="flex flex-col gap-7">
+      <div class="relative flex flex-col items-center justify-between border-black rounded-3xl border-4 min-h-min p-2" :style="{width: `${nextBlockSideLength}px`}">
+        <h2 class="font-jersey text-5xl whitespace-nowrap">Holding:</h2>
+        <div id="NextBlock" class="flex flex-col justify-center items-center">
+          <div v-for="(row, holdBlockRowIndex) in nextBlockDisplay" :key="`hold_row_${holdBlockRowIndex}`" class="flex flex-row justify-center gap-0" :style="{width: `${cellSideLength * nextBlockDisplay.length}px`, height: `${cellSideLength}px`}">
+            <span v-for="(cellVal, holdBlockColIndex) in row" :key="`hold_cell_${holdBlockRowIndex * nextBlockDisplay.length + holdBlockColIndex}`" class="" :style="getHoldBlockCellStyle(holdBlockRowIndex, holdBlockColIndex)">
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -26,6 +26,9 @@ let blockBoardPlayer2 = ref(Array.from({ length: 20 },
 let nextBlockTypePlayer1 = ref("")
 let nextBlockTypePlayer2 = ref("")
 
+let holdBlockTypePlayer1 = ref("")
+let holdBlockTypePlayer2 = ref("")
+
 let scorePlayer1 = ref(0)
 let scorePlayer2 = ref(0)
 
@@ -189,6 +192,14 @@ onMounted(() => {
         nextBlockTypePlayer1.value = data.Player_Next_Block[0]
         nextBlockTypePlayer2.value = data.Player_Next_Block[1]
       }
+      
+      
+      if(data.Player_Hold_Block_type) {
+        // make sure vue notice the change
+        holdBlockTypePlayer1.value = data.Player_Hold_Block_type[0]
+        holdBlockTypePlayer2.value = data.Player_Hold_Block_type[1]
+      }
+
 
       if(data.PlayerScore) {
         // make sure vue notice the change
@@ -233,6 +244,7 @@ watch(redrawTetrisUICounter, handleResize)
 
   <div class="flex flex-col justify-center items-center h-screen w-screen">
     <div v-show="!opponentFound">
+      <RouterLink to="/" class="absolute top-0 left-0 text-gray-600 hover:text-black hover:scale-110 ease-linear duration-[80ms]"><Icon icon="line-md:arrow-small-left" width="92" height="92"/></RouterLink>
       <div class="flex flex-row items-end">
         <h1 class="font-jersey text-7xl">Looking for your next opponent</h1>
         <Icon icon="svg-spinners:3-dots-bounce" width="48" height="48" />
@@ -258,8 +270,8 @@ watch(redrawTetrisUICounter, handleResize)
       <div id="gameSceneContainer" v-show="gameStartCountDown == 1 || gameStartCountDown == 0" class="h-full w-full">
         <div id="Header" class="w-full">
           <div class="flex flex-col justify-center">
-            <div class="w-full">
-              <RouterLink to="/"><Icon icon="line-md:arrow-small-left" width="92" height="92"/></RouterLink>
+            <div class="w-full h-24">
+              <RouterLink to="/" class="absolute left-0 text-gray-600 hover:text-black hover:scale-110 ease-linear duration-[80ms]"><Icon icon="line-md:arrow-small-left" width="92" height="92"/></RouterLink>
             </div>
             
             <span class="inline-flex flex-row justify-center">
