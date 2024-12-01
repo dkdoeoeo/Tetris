@@ -103,6 +103,8 @@ const sendMoveToServer = (moveType) => {
     }
 
 const handleKeyDown = (event) => {
+      if (gameStartCountDown != 0) return
+
       // 監聽鍵盤按鍵事件
       switch (event.key) {
         case 'ArrowLeft':
@@ -237,43 +239,93 @@ watch(redrawTetrisUICounter, handleResize)
       </div>
     </div>
 
-    <div v-show="gameStartCountDown > 0">
-      <div class="flex flex-row items-end">
-        <h1 class="font-jersey text-7xl">{{gameStartCountDown}}</h1>
-        <Icon icon="svg-spinners:3-dots-bounce" width="48" height="48" />
-      </div>
+    <div v-show="gameStartCountDown > 0"  class="fixed flex flex-col justify-center items-center h-screen w-screen top-0 left-0 bg-white z-10">
+        <h1 class="font-jersey text-7xl text-center">Game will start in: </h1>
+        <div class="flex items-center justify-center h-36 w-36">
+          <Transition name="gameCountdown">
+          <!-- 3 -->
+          <Icon v-if="gameStartCountDown == 3" icon="formkit:number" width="144" height="144" class="absolute" /> 
+          <!-- 2 -->
+          <Icon v-else-if="gameStartCountDown == 2" icon="tabler:circle-number-2" width="144" height="144" class=" absolute"/> 
+          <!-- 1 -->
+          <Icon v-else icon="mdi:number-1-box-multiple-outline" width="144" height="144" class="absolute"/>
+        </Transition>
+        </div>
+        <!-- <h1 class="font-jersey text-9xl text-center">{{gameStartCountDown}}</h1> -->
     </div>
 
-    <div id="Header" v-show="gameStartCountDown == 0" class="w-full">
-      <div class="flex flex-col justify-center">
-        <div class="w-full">
-          <RouterLink to="/"><Icon icon="line-md:arrow-small-left" width="92" height="92"/></RouterLink>
+    <Transition name="gameSceneContainerTransition">
+      <div id="gameSceneContainer" v-show="gameStartCountDown == 1 || gameStartCountDown == 0" class="h-full w-full">
+        <div id="Header" class="w-full">
+          <div class="flex flex-col justify-center">
+            <div class="w-full">
+              <RouterLink to="/"><Icon icon="line-md:arrow-small-left" width="92" height="92"/></RouterLink>
+            </div>
+            
+            <span class="inline-flex flex-row justify-center">
+              <h2 class="font-jersey text-7xl mr-8">
+                You Are 
+              </h2>
+              <h2 class="font-jersey text-7xl" :style="{color: `${playerId == 1 ? player1Color : player2Color}`}">
+                {{ playerName }}
+              </h2>
+            </span>
+          </div>
         </div>
-
-        <span class="inline-flex flex-row justify-center">
-          <h2 class="font-jersey text-7xl mr-8">
-            You Are 
-          </h2>
-          <h2 class="font-jersey text-7xl" :style="{color: `${playerId == 1 ? player1Color : player2Color}`}">
-            {{ playerName }}
-          </h2>
-        </span>
-      </div>
-    </div>
-
-    <div v-show="gameStartCountDown == 0" id="TetrisUIContainer" ref="TetrisUIContainerRef" class="relative flex flex-row justify-around items-center h-full w-full">
-        <div class="flex flex-col justify-center items-center h-full w-full">
-          <h2 class="font-jersey text-7xl text-red-700">Player 1</h2>
-          <TetrisBoard :Board=blockBoardPlayer1 :key="`Player1_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer1" :Score="scorePlayer1"></TetrisBoard>
+        
+          <div  id="TetrisUIContainer" ref="TetrisUIContainerRef" class="relative flex flex-row justify-around items-center h-full w-full z-0">
+            <div class="flex flex-col justify-center items-center h-full w-full">
+              <h2 class="font-jersey text-7xl text-red-700">Player 1</h2>
+              <TetrisBoard :Board=blockBoardPlayer1 :key="`Player1_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer1" :Score="scorePlayer1"></TetrisBoard>
+            </div>
+            <div class="flex flex-col justify-center items-center h-full w-full">
+              <h2 class="font-jersey text-7xl text-yellow-600">Player 2</h2>
+              <TetrisBoard :Board=blockBoardPlayer2 :key="`Player2_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer2" :Score="scorePlayer2"></TetrisBoard>   
+            </div>
+          </div>
         </div>
-        <div class="flex flex-col justify-center items-center h-full w-full">
-          <h2 class="font-jersey text-7xl text-yellow-600">Player 2</h2>
-          <TetrisBoard :Board=blockBoardPlayer2 :key="`Player2_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer2" :Score="scorePlayer2"></TetrisBoard>   
-        </div>
-    </div>
+    </Transition>
   </div>
-
-</template>
+    
+  </template>
 
 <style lang="scss" scoped>
+
+.gameCountdown-enter-active,
+.gameCountdown-leave-active {
+  position: absolute;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.gameCountdown-enter-from,
+.gameCountdown-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.gameCountdown-enter-to,
+.gameCountdown-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.gameSceneContainerTransition-enter-active,
+.gameSceneContainerTransition-leave-active {
+  position: absolute;
+  transition: opacity 2s ease, transform 2s ease;
+}
+
+.gameSceneContainerTransition-enter-from,
+.gameSceneContainerTransition-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.gameSceneContainerTransition-enter-to,
+.gameSceneContainerTransition-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+
+
 </style>

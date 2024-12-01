@@ -8,7 +8,7 @@
         <ol class="flex flex-col justify-around items-center font-jersey text-7xl gap-8 m-8 text-gray-800">
             <li class=" hover:scale-[1.2] hover:text-black duration-300 transition ease-out"><RouterLink to="/2player" class="menu-option">Start Game</RouterLink></li>
             <li class=" hover:scale-[1.2] hover:text-black duration-300 transition ease-out"><RouterLink to="/" class="menu-option">About</RouterLink></li>
-            <li class=" hover:scale-[1.2] hover:text-black duration-300 transition ease-out"><RouterLink to="/Option" class="menu-option">Options</RouterLink></li>
+            <li class=" hover:scale-[1.2] hover:text-black duration-300 transition ease-out"><RouterLink to="/Options" class="menu-option">Options</RouterLink></li>
             <!-- <li class=" hover:scale-110 duration-300 transition ease-out"><RouterLink class="menu-option">About</RouterLink></li> -->
         </ol>
     </div>

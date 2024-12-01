@@ -28,7 +28,21 @@
 
 	    執行"npm install"
 
-	    到這邊應該可以執行"npm run dev"來讓前端跑起來了
+	    安裝插件:
+			vue router: 
+				"npm install vue-router@4" 
+			tailwind:
+				"npm install -D tailwindcss@latest postcss@latest autoprefixer@latest"
+			pinia:
+				"npm install pinia"
+			sass: 
+				"npm install -g sass"
+			iconify:
+				"npm install --save-dev @iconify/vue"
+		
+		到這邊應該可以執行"npm run dev"來讓前端跑起來了
+
+
 	
 	GO:
 
