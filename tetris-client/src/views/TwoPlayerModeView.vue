@@ -1,11 +1,22 @@
 <script setup>
-import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import TetrisBoard from '@/components/TetrisUI.vue';
+import { Icon } from '@iconify/vue';
 
+let socket;
 let connected = ref(false)
 let opponentFound = ref(false)
-let socket;
+// game starts after 3 secs of finding a opponent
+let gameStartCountDown = ref(-1) // -1 = not found, 0 = game start, > 0 = counting down
+let gameStartCountDownInterval = null
+
+// identity indicators
 let playerId;
+let playerName;
+// TODO: 之後改成可以改
+const player1Color = "rgba(185, 28, 28, 1)"
+const player2Color = "rgba(202, 138, 4, 1)"
+
 
 let blockBoardPlayer1 = ref(Array.from({ length: 20 }, 
                                     () => Array(10).fill(0)));
@@ -29,10 +40,6 @@ let TetrisUIContainerRef = useTemplateRef("TetrisUIContainerRef")
 //       player1Move: null,
 //       socket: null,  // WebSocket 客戶端
 //       playerId: null,
-//       Player1_Block_Board: Array.from({ length: 20 }, () => Array(10).fill(0)),
-//       Player2_Block_Board: Array.from({ length: 20 }, () => Array(10).fill(0)),
-//       player1Score: 0,  // 玩家1分數
-//       player2Score: 0,  // 玩家2分數
 //       Player1_garbage_line: null,
 //       Player2_garbage_line: null,
 //       Player1_cur_block_type: null,
@@ -51,58 +58,6 @@ let TetrisUIContainerRef = useTemplateRef("TetrisUIContainerRef")
 //   },
 
 
-
-onMounted(() => {
-
-    // 當組件加載時，建立 WebSocket 連線
-    socket = new WebSocket("ws://localhost:8080/game");
-    // 註冊 WebSocket 事件
-    socket.onopen = () => {
-      connected.value = true;  // 當 WebSocket 連線成功時設為 true
-      console.log("Connected to server!");
-    };
-
-    socket.onclose = () => {
-      connected.value = false;  // 當 WebSocket 斷開時設為 false
-      console.log("Disconnected from server!");
-    };
-
-    socket.onerror = (error) => {
-      console.log("WebSocket Error:", error);
-    };
-
-     // 接收後端訊息
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      
-      if (data.player_id) {
-        opponentFound.value = true
-        playerId = data.player_id;  // 設置玩家ID
-        console.log('玩家ID:', playerId);
-      }
-      
-      if(data.Player_Block_Board) {
-        // make sure vue notice the change
-        blockBoardPlayer1.value = data.Player_Block_Board[0]
-        blockBoardPlayer2.value = data.Player_Block_Board[1]
-      }
-
-      if(data.Player_Next_Block) {
-        // make sure vue notice the change
-        nextBlockTypePlayer1.value = data.Player_Next_Block[0]
-        nextBlockTypePlayer2.value = data.Player_Next_Block[1]
-      }
-
-      if(data.PlayerScore) {
-        // make sure vue notice the change
-        scorePlayer1.value = data.PlayerScore[0]
-        scorePlayer2.value = data.PlayerScore[1]
-      }
-
-      redrawTetrisUICounter.value += 1
-    }
-    
-  })
 
 const moveLeft = () => {
       // 觸發左移操作
@@ -173,11 +128,83 @@ const handleKeyDown = (event) => {
       }
     }
 
+  
+
+onMounted(() => {
+    // window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", handleResize);
+
+    // 當組件加載時，建立 WebSocket 連線
+    socket = new WebSocket("ws://localhost:8080/game");
+    // 註冊 WebSocket 事件
+    socket.onopen = () => {
+      connected.value = true;  // 當 WebSocket 連線成功時設為 true
+      console.log("Connected to server!");
+    };
+
+    socket.onclose = () => {
+      connected.value = false;  // 當 WebSocket 斷開時設為 false
+      opponentFound.value = false
+      gameStartCountDown.value = -1
+      console.log("Disconnected from server!");
+    };
+
+    socket.onerror = (error) => {
+      console.log("WebSocket Error:", error);
+    };
+
+     // 接收後端訊息
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+    
+      if (data.player_id) {
+        opponentFound.value = true
+
+        // game start after 3 sec
+        gameStartCountDown.value = 3;
+        gameStartCountDownInterval = setInterval(() => {
+          gameStartCountDown.value -= 1;
+          if (gameStartCountDown.value <= 0) { 
+            nextTick(() => { handleResize() })
+            clearInterval(gameStartCountDownInterval);
+           }
+        }, 1000)
+
+        playerId = data.player_id;  // 設置玩家ID
+        console.log('玩家ID:', playerId);
+        playerName = playerId == 1 ? "Player 1" : "Player 2" 
+      }
+      
+      if(data.Player_Block_Board) {
+        // make sure vue notice the change
+        blockBoardPlayer1.value = data.Player_Block_Board[0]
+        blockBoardPlayer2.value = data.Player_Block_Board[1]
+      }
+
+      if(data.Player_Next_Block) {
+        // make sure vue notice the change
+        nextBlockTypePlayer1.value = data.Player_Next_Block[0]
+        nextBlockTypePlayer2.value = data.Player_Next_Block[1]
+      }
+
+      if(data.PlayerScore) {
+        // make sure vue notice the change
+        scorePlayer1.value = data.PlayerScore[0]
+        scorePlayer2.value = data.PlayerScore[1]
+      }
+
+      redrawTetrisUICounter.value += 1
+    }
+    
+  })
+
 
 // 監聽鍵盤事件
 onUnmounted(() => {
     // 在組件銷毀前移除監聽器並關閉連線
     window.removeEventListener("keydown", handleKeyDown);
+    window.removeEventListener("resize", handleResize);
     if (socket) {
       socket.close();  // 斷開 WebSocket 連線
     }
@@ -194,9 +221,6 @@ const handleResize = () => {
 //check resize if TetrisBoardRerenders
 watch(redrawTetrisUICounter, handleResize)
 
-// window.addEventListener("keydown", handleKeyDown);
-window.addEventListener("keydown", handleKeyDown);
-window.addEventListener("resize", handleResize);
 
 </script>
 
@@ -207,13 +231,45 @@ window.addEventListener("resize", handleResize);
 
   <div class="flex flex-col justify-center items-center h-screen w-screen">
     <div v-show="!opponentFound">
-      <h1>
-        Looking for your next nemesis...
-      </h1>
+      <div class="flex flex-row items-end">
+        <h1 class="font-jersey text-7xl">Looking for your next opponent</h1>
+        <Icon icon="svg-spinners:3-dots-bounce" width="48" height="48" />
+      </div>
     </div>
-    <div v-show="opponentFound" id="TetrisUIContainer" ref="TetrisUIContainerRef" class="relative flex flex-row justify-around items-center h-screen w-screen">
-      <TetrisBoard :Board=blockBoardPlayer1 :key="`Player1_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer1" :Score="scorePlayer1"></TetrisBoard>
-      <TetrisBoard :Board=blockBoardPlayer2 :key="`Player2_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer2" :Score="scorePlayer2"></TetrisBoard>   
+
+    <div v-show="gameStartCountDown > 0">
+      <div class="flex flex-row items-end">
+        <h1 class="font-jersey text-7xl">{{gameStartCountDown}}</h1>
+        <Icon icon="svg-spinners:3-dots-bounce" width="48" height="48" />
+      </div>
+    </div>
+
+    <div id="Header" v-show="gameStartCountDown == 0" class="w-full">
+      <div class="flex flex-col justify-center">
+        <div class="w-full">
+          <RouterLink to="/"><Icon icon="line-md:arrow-small-left" width="92" height="92"/></RouterLink>
+        </div>
+
+        <span class="inline-flex flex-row justify-center">
+          <h2 class="font-jersey text-7xl mr-8">
+            You Are 
+          </h2>
+          <h2 class="font-jersey text-7xl" :style="{color: `${playerId == 1 ? player1Color : player2Color}`}">
+            {{ playerName }}
+          </h2>
+        </span>
+      </div>
+    </div>
+
+    <div v-show="gameStartCountDown == 0" id="TetrisUIContainer" ref="TetrisUIContainerRef" class="relative flex flex-row justify-around items-center h-full w-full">
+        <div class="flex flex-col justify-center items-center h-full w-full">
+          <h2 class="font-jersey text-7xl text-red-700">Player 1</h2>
+          <TetrisBoard :Board=blockBoardPlayer1 :key="`Player1_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer1" :Score="scorePlayer1"></TetrisBoard>
+        </div>
+        <div class="flex flex-col justify-center items-center h-full w-full">
+          <h2 class="font-jersey text-7xl text-yellow-600">Player 2</h2>
+          <TetrisBoard :Board=blockBoardPlayer2 :key="`Player2_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer2" :Score="scorePlayer2"></TetrisBoard>   
+        </div>
     </div>
   </div>
 
