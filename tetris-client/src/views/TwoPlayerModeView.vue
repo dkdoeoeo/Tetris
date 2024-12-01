@@ -7,13 +7,19 @@ let opponentFound = ref(false)
 let socket;
 let playerId;
 
-let Player1_Block_Board = ref(Array.from({ length: 20 }, 
+let blockBoardPlayer1 = ref(Array.from({ length: 20 }, 
                                     () => Array(10).fill(0)));
-let Player2_Block_Board = ref(Array.from({ length: 20 }, 
+let blockBoardPlayer2 = ref(Array.from({ length: 20 }, 
                                     () => Array(10).fill(0)));
 
+let nextBlockTypePlayer1 = ref("")
+let nextBlockTypePlayer2 = ref("")
+
+let scorePlayer1 = ref(0)
+let scorePlayer2 = ref(0)
+
 let redrawTetrisUICounter = ref(0)
-let boardHeight = ref(0)
+let uiHeight = ref(0)
 let TetrisUIContainerRef = useTemplateRef("TetrisUIContainerRef")
 
 // export default {
@@ -77,10 +83,23 @@ onMounted(() => {
       
       if(data.Player_Block_Board) {
         // make sure vue notice the change
-        Player1_Block_Board.value = data.Player_Block_Board[0]
-        Player2_Block_Board.value = data.Player_Block_Board[1]
-        redrawTetrisUICounter.value += 1
+        blockBoardPlayer1.value = data.Player_Block_Board[0]
+        blockBoardPlayer2.value = data.Player_Block_Board[1]
       }
+
+      if(data.Player_Next_Block) {
+        // make sure vue notice the change
+        nextBlockTypePlayer1.value = data.Player_Next_Block[0]
+        nextBlockTypePlayer2.value = data.Player_Next_Block[1]
+      }
+
+      if(data.PlayerScore) {
+        // make sure vue notice the change
+        scorePlayer1.value = data.PlayerScore[0]
+        scorePlayer2.value = data.PlayerScore[1]
+      }
+
+      redrawTetrisUICounter.value += 1
     }
     
   })
@@ -168,7 +187,8 @@ onUnmounted(() => {
 
 const handleResize = () => {
   if(!TetrisUIContainerRef.value) return
-  boardHeight.value = TetrisUIContainerRef.value.clientHeight
+  const tetrisUIHeightFactor = 0.8
+  uiHeight.value = TetrisUIContainerRef.value.clientHeight * tetrisUIHeightFactor
 }
 
 //check resize if TetrisBoardRerenders
@@ -191,9 +211,9 @@ window.addEventListener("resize", handleResize);
         Looking for your next nemesis...
       </h1>
     </div>
-    <div v-show="opponentFound" id="TetrisUIContainer" ref="TetrisUIContainerRef" class="relative flex flex-row justify-around h-screen w-screen">
-      <TetrisBoard :Board=Player1_Block_Board :key="`Player1_${redrawTetrisUICounter}`" :UIHeight="boardHeight"></TetrisBoard>
-      <TetrisBoard :Board=Player2_Block_Board :key="`Player2_${redrawTetrisUICounter}`" :UIHeight="boardHeight"></TetrisBoard>   
+    <div v-show="opponentFound" id="TetrisUIContainer" ref="TetrisUIContainerRef" class="relative flex flex-row justify-around items-center h-screen w-screen">
+      <TetrisBoard :Board=blockBoardPlayer1 :key="`Player1_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer1" :Score="scorePlayer1"></TetrisBoard>
+      <TetrisBoard :Board=blockBoardPlayer2 :key="`Player2_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer2" :Score="scorePlayer2"></TetrisBoard>   
     </div>
   </div>
 
