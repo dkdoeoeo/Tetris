@@ -118,7 +118,7 @@ func removeBoardWithBlock(curBoard [20][10]int, curBlock TetrisBlock) [20][10]in
 	return curBoard
 }
 
-// 檢查方塊是否衝突,如果沒有就把tryChangeBlock填入並回傳新的tmpboard
+// 檢查方塊衝突,true:無衝突,false:衝突
 func Check_collision(tryChangeBlock TetrisBlock, tmpboard [20][10]int) bool {
 
 	for _, offset := range tryChangeBlock.Offsets {
@@ -133,8 +133,6 @@ func Check_collision(tryChangeBlock TetrisBlock, tmpboard [20][10]int) bool {
 			return false //超出範圍
 		}
 	}
-
-	tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 
 	return true
 }
@@ -169,9 +167,9 @@ func Check_row_full(Player int, curGameState GameState) GameState {
 	for row := 0; row < len(curGameState.Player_Block_Board[Player-1]); row++ {
 		full := true
 		for col := 0; col < len(curGameState.Player_Block_Board[Player-1][row]); col++ {
-			if curGameState.Player_Block_Board[Player-1][row][col] == 0 {
+			if curGameState.Player_Block_Board[Player-1][row][col] == 0 || curGameState.Player_Block_Board[Player-1][row][col] == 8 {
 				full = false
-				break // 如果有任何元素是 0，這一列不滿
+				break // 如果有任何元素是 0或8，這一列不滿
 			}
 		}
 		if full {
@@ -246,4 +244,38 @@ func moveBlocksUp(a *[20][10]int) {
 	for c := 0; c < len(a[Row-1]); c++ {
 		a[Row-1][c] = 0
 	}
+}
+
+func generatePreviewBlock(Player int, curGameState GameState) GameState {
+	//移除預覽方塊
+	clearPreviewBlock(curGameState.Player_Block_Board[Player-1])
+	//暫時移除當前方塊
+	tmpboard := removeBoardWithBlock(curGameState.Player_Block_Board[Player-1], curGameState.Player_cur_block[Player-1])
+
+	PreviewBlock := curGameState.Player_cur_block[Player-1]
+	PreviewBlock.boardType = 8
+	flag := true
+
+	for flag {
+		flag := Check_collision(PreviewBlock, tmpboard)
+
+		if flag {
+			tmpboard = fillBoardWithBlock(tmpboard, PreviewBlock)
+			PreviewBlock.pos.y += 1
+		}
+	}
+	//填上當前方塊
+	tmpboard = fillBoardWithBlock(curGameState.Player_Block_Board[Player-1], curGameState.Player_cur_block[Player-1])
+	return curGameState
+}
+
+func clearPreviewBlock(Player_Block_Board [20][10]int) [20][10]int {
+	for r := 0; r < Row; r++ {
+		for c := 0; c < Col; c++ {
+			if Player_Block_Board[r][c] == 8 {
+				Player_Block_Board[r][c] = 0
+			}
+		}
+	}
+	return Player_Block_Board
 }

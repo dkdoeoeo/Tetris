@@ -33,7 +33,6 @@ func Move_Down(Player int, curGameState GameState) GameState {
 	if flag {
 		tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 		curGameState.Player_cur_block[Player-1].pos.y += 1
-		curGameState.Player_Block_Board[Player-1] = tmpboard
 	} else {
 		curGameState = Check_row_full(Player, curGameState)
 		curGameState = Eliminate_rows(Player, curGameState)
@@ -57,6 +56,7 @@ func Move_Left(Player int, curGameState GameState) GameState {
 		curGameState.Player_cur_block[Player-1].pos.x -= 1
 		curGameState.Player_Block_Board[Player-1] = tmpboard
 	}
+	curGameState = generatePreviewBlock(Player, curGameState)
 	return curGameState
 }
 
@@ -72,6 +72,7 @@ func Move_Right(Player int, curGameState GameState) GameState {
 		curGameState.Player_cur_block[Player-1].pos.x += 1
 		curGameState.Player_Block_Board[Player-1] = tmpboard
 	}
+	curGameState = generatePreviewBlock(Player, curGameState)
 	return curGameState
 }
 
@@ -102,7 +103,7 @@ func Rotate(Player int, curGameState GameState) GameState {
 	tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 	curGameState.Player_cur_block[Player-1] = tryChangeBlock
 	curGameState.Player_Block_Board[Player-1] = tmpboard
-
+	curGameState = generatePreviewBlock(Player, curGameState)
 	return curGameState
 }
 
@@ -123,7 +124,6 @@ func Hard_Drop(Player int, curGameState GameState) GameState {
 		if flag {
 			tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 			curGameState.Player_cur_block[Player-1].pos.y += 1
-			curGameState.Player_Block_Board[Player-1] = tmpboard
 		} else {
 			curGameState = Check_row_full(Player, curGameState)
 			curGameState = Eliminate_rows(Player, curGameState)
@@ -172,5 +172,6 @@ func Hold(Player int, curGameState GameState) GameState {
 		curGameState.Player_cur_block_type[Player-1] = newBlockType
 		curGameState.Player_Hold_Block_type[Player-1] = oldBlockType
 	}
+	curGameState = generatePreviewBlock(Player, curGameState)
 	return curGameState
 }
