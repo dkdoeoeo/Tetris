@@ -106,7 +106,8 @@ const sendMoveToServer = (moveType) => {
     }
 
 const handleKeyDown = (event) => {
-      if (gameStartCountDown != 0) return
+
+      if (gameStartCountDown.value != 0) return
 
       // 監聽鍵盤按鍵事件
       switch (event.key) {
@@ -137,8 +138,7 @@ const handleKeyDown = (event) => {
 
 onMounted(() => {
     // window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("resize", handleResize);
+
 
     // 當組件加載時，建立 WebSocket 連線
     socket = new WebSocket("ws://localhost:8080/game");
@@ -234,6 +234,8 @@ const handleResize = () => {
 //check resize if TetrisBoardRerenders
 watch(redrawTetrisUICounter, handleResize)
 
+window.addEventListener("keydown", handleKeyDown);
+window.addEventListener("resize", handleResize);
 
 </script>
 
@@ -268,17 +270,17 @@ watch(redrawTetrisUICounter, handleResize)
 
     <Transition name="gameSceneContainerTransition">
       <div id="gameSceneContainer" v-show="gameStartCountDown == 1 || gameStartCountDown == 0" class="h-full w-full">
-        <div id="Header" class="w-full">
+        <div id="Header" class="absolute top-0 left-0 w-full">
           <div class="flex flex-col justify-center">
-            <div class="w-full h-24">
+            <div class="w-full">
               <RouterLink to="/" class="absolute left-0 text-gray-600 hover:text-black hover:scale-110 ease-linear duration-[80ms]"><Icon icon="line-md:arrow-small-left" width="92" height="92"/></RouterLink>
             </div>
-            
-            <span class="inline-flex flex-row justify-center">
-              <h2 class="font-jersey text-7xl mr-8">
+
+            <span class="inline-flex flex-row justify-center items-end">
+              <h2 class="font-jersey text-7xl mr-8 h-full">
                 You Are 
               </h2>
-              <h2 class="font-jersey text-7xl" :style="{color: `${playerId == 1 ? player1Color : player2Color}`}">
+              <h2 class="font-jersey text-7xl h-full" :style="{color: `${playerId == 1 ? player1Color : player2Color}`}">
                 {{ playerName }}
               </h2>
             </span>

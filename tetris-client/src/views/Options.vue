@@ -1,10 +1,10 @@
 <script setup>
 import { Icon } from '@iconify/vue';
-
 import { useOptionsStore} from '@/stores/Options'
-// let settings = ref(useOptionsStore().settings);
-// const handleTheme = () => {
-// }
+
+let settings = ref(useOptionsStore().settings);
+const handleTheme = () => {
+}
 </script>
 
 <template>
