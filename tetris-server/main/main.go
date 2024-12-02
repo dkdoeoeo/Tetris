@@ -147,6 +147,8 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 		printInfo(rooms[roomID])
 		if rooms[roomID].ifGameOver != 0 {
 			//處理勝負
+			conn.Close()
+			break
 		}
 	}
 }
@@ -207,6 +209,10 @@ func updateGameLoop(Player1_conn *websocket.Conn, Player2_conn *websocket.Conn, 
 
 		if rooms[roomID].ifGameOver != 0 {
 			//處理勝負
+			Player1_conn.Close()
+			break
+			Player2_conn.Close()
+			break
 		}
 	}
 }
