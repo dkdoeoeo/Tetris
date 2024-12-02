@@ -44,7 +44,7 @@ func Move_Down(Player int, curGameState GameState) GameState {
 		curGameState = Check_row_full(Player, curGameState)
 		curGameState = Eliminate_rows(Player, curGameState)
 		curGameState.Player_This_Round_Hold_flag[Player-1] = false
-		curGameState = generateGarbageLine(3-Player, curGameState)
+		curGameState = generateGarbageLine(Player, curGameState)
 		curGameState = switchNextBlock(Player, curGameState)
 	}
 

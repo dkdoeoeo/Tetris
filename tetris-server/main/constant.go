@@ -21,6 +21,7 @@ const (
 	typeL       = 6
 	typeJ       = 7
 	typeGarbage = 8
+	typePreview = 9
 )
 
 const (

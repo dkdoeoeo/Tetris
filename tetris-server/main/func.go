@@ -126,7 +126,7 @@ func Check_collision(tryChangeBlock TetrisBlock, tmpboard [20][10]int) bool {
 		y := tryChangeBlock.pos.y + offset[1]
 
 		if x >= 0 && x < 10 && y >= 0 && y < 20 {
-			if tmpboard[y][x] == 0 || tmpboard[y][x] == 8 {
+			if tmpboard[y][x] == 0 || tmpboard[y][x] == typePreview {
 				continue
 			} else {
 				return false //位置已經有方塊
@@ -169,9 +169,9 @@ func Check_row_full(Player int, curGameState GameState) GameState {
 	for row := 0; row < len(curGameState.Player_Block_Board[Player-1]); row++ {
 		full := true
 		for col := 0; col < len(curGameState.Player_Block_Board[Player-1][row]); col++ {
-			if curGameState.Player_Block_Board[Player-1][row][col] == 0 || curGameState.Player_Block_Board[Player-1][row][col] == 8 {
+			if curGameState.Player_Block_Board[Player-1][row][col] == 0 || curGameState.Player_Block_Board[Player-1][row][col] == typePreview {
 				full = false
-				break // 如果有任何元素是 0或8，這一列不滿
+				break // 如果有任何元素是 0或9，這一列不滿
 			}
 		}
 		if full {
@@ -254,7 +254,7 @@ func generatePreviewBlock(Player int, curGameState GameState) GameState {
 	//移除當前方塊
 	curGameState.Player_Block_Board[Player-1] = removeBoardWithBlock(curGameState.Player_Block_Board[Player-1], curGameState.Player_cur_block[Player-1])
 	tryChangeBlock := curGameState.Player_cur_block[Player-1]
-	tryChangeBlock.boardType = 8 //設定成預覽block
+	tryChangeBlock.boardType = typePreview //設定成預覽block
 
 	flag := true
 	//不斷下移
@@ -279,7 +279,7 @@ func generatePreviewBlock(Player int, curGameState GameState) GameState {
 func clearPreviewBlock(Player_Block_Board [20][10]int) [20][10]int {
 	for r := 0; r < Row; r++ {
 		for c := 0; c < Col; c++ {
-			if Player_Block_Board[r][c] == 8 {
+			if Player_Block_Board[r][c] == typePreview {
 				Player_Block_Board[r][c] = 0
 			}
 		}
