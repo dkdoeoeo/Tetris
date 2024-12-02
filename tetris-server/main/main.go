@@ -74,6 +74,8 @@ func initGameState() GameState {
 	//把新的方塊填到curBoard裡
 	newGameState.Player_Block_Board[0] = fillBoardWithBlock(newGameState.Player_Block_Board[0], player1Block)
 	newGameState.Player_Block_Board[1] = fillBoardWithBlock(newGameState.Player_Block_Board[1], player2Block)
+	newGameState = generatePreviewBlock(1, newGameState)
+	newGameState = generatePreviewBlock(2, newGameState)
 	return newGameState
 }
 
@@ -139,21 +141,13 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 		//updateGameState 函數來處理遊戲邏輯
 		rooms[roomID] = update_game_status(input.Player, input.Move, rooms[roomID])
 
-		if rooms[roomID].ifGameOver != 0 {
-			//處理勝負
-		}
-
-		// 傳送更新後雙方遊戲盤面、分數、垃圾行數量
-		// conn.WriteJSON(rooms[roomID].Player_Block_Board)
-		// conn.WriteJSON(rooms[roomID].PlayerScore)
-		// conn.WriteJSON(rooms[roomID].Player_garbage_line)
-		// conn.WriteJSON(rooms[roomID].Player_Hold_Block_type)
-		// conn.WriteJSON(rooms[roomID].Player_Next_Block)
-		// conn.WriteJSON(rooms[roomID].Player_Eliminate_rows)
-		// conn.WriteJSON(rooms[roomID].ifGameOver)
+		// 傳送更新後雙方遊戲狀態
 		conn.WriteJSON(rooms[roomID])
 		//test
 		printInfo(rooms[roomID])
+		if rooms[roomID].ifGameOver != 0 {
+			//處理勝負
+		}
 	}
 }
 
@@ -207,13 +201,13 @@ func updateGameLoop(Player1_conn *websocket.Conn, Player2_conn *websocket.Conn, 
 		// 更新遊戲狀態
 		rooms[roomID] = curGameState
 
-		if rooms[roomID].ifGameOver != 0 {
-			//處理勝負
-		}
-
 		// 向房間內的玩家廣播更新後的遊戲狀態
 		Player1_conn.WriteJSON(rooms[roomID])
 		Player2_conn.WriteJSON(rooms[roomID])
+
+		if rooms[roomID].ifGameOver != 0 {
+			//處理勝負
+		}
 	}
 }
 

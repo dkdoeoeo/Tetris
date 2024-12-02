@@ -126,8 +126,10 @@ func Check_collision(tryChangeBlock TetrisBlock, tmpboard [20][10]int) bool {
 		y := tryChangeBlock.pos.y + offset[1]
 
 		if x >= 0 && x < 10 && y >= 0 && y < 20 {
-			if tmpboard[y][x] != 0 { //位置已經有方塊
-				return false
+			if tmpboard[y][x] == 0 || tmpboard[y][x] == 8 {
+				continue
+			} else {
+				return false //位置已經有方塊
 			}
 		} else {
 			return false //超出範圍
@@ -248,24 +250,29 @@ func moveBlocksUp(a *[20][10]int) {
 
 func generatePreviewBlock(Player int, curGameState GameState) GameState {
 	//移除預覽方塊
-	clearPreviewBlock(curGameState.Player_Block_Board[Player-1])
-	//暫時移除當前方塊
-	tmpboard := removeBoardWithBlock(curGameState.Player_Block_Board[Player-1], curGameState.Player_cur_block[Player-1])
+	curGameState.Player_Block_Board[Player-1] = clearPreviewBlock(curGameState.Player_Block_Board[Player-1])
+	//移除當前方塊
+	curGameState.Player_Block_Board[Player-1] = removeBoardWithBlock(curGameState.Player_Block_Board[Player-1], curGameState.Player_cur_block[Player-1])
+	tryChangeBlock := curGameState.Player_cur_block[Player-1]
+	tryChangeBlock.boardType = 8 //設定成預覽block
 
-	PreviewBlock := curGameState.Player_cur_block[Player-1]
-	PreviewBlock.boardType = 8
 	flag := true
-
+	//不斷下移
 	for flag {
-		flag := Check_collision(PreviewBlock, tmpboard)
+		tmpboard := removeBoardWithBlock(curGameState.Player_Block_Board[Player-1], tryChangeBlock)
+		tryChangeBlock.pos.y = tryChangeBlock.pos.y + 1
+		flag := Check_collision(tryChangeBlock, tmpboard)
 
 		if flag {
-			tmpboard = fillBoardWithBlock(tmpboard, PreviewBlock)
-			PreviewBlock.pos.y += 1
+			tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
+			curGameState.Player_Block_Board[Player-1] = tmpboard
+		} else {
+			break
 		}
 	}
-	//填上當前方塊
-	tmpboard = fillBoardWithBlock(curGameState.Player_Block_Board[Player-1], curGameState.Player_cur_block[Player-1])
+
+	//加回當前方塊
+	curGameState.Player_Block_Board[Player-1] = fillBoardWithBlock(curGameState.Player_Block_Board[Player-1], curGameState.Player_cur_block[Player-1])
 	return curGameState
 }
 

@@ -20,20 +20,27 @@ func update_game_status(Player int, Move string, curGameState GameState) GameSta
 	case "hold":
 		curGameState = Hold(Player, curGameState)
 	}
+	curGameState = generatePreviewBlock(Player, curGameState)
 	return curGameState
 }
 
 // 執行方塊下落一格
 func Move_Down(Player int, curGameState GameState) GameState {
+	//先嘗試下移
 	tryChangeBlock := curGameState.Player_cur_block[Player-1]
 	tryChangeBlock.pos.y = tryChangeBlock.pos.y + 1
 	tmpboard := removeBoardWithBlock(curGameState.Player_Block_Board[Player-1], curGameState.Player_cur_block[Player-1])
+	//檢查下移是否衝突
 	flag := Check_collision(tryChangeBlock, tmpboard)
 
+	//如果可以下移
 	if flag {
+		//真的下移
 		tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 		curGameState.Player_cur_block[Player-1].pos.y += 1
+		curGameState.Player_Block_Board[Player-1] = tmpboard
 	} else {
+		//處理消排
 		curGameState = Check_row_full(Player, curGameState)
 		curGameState = Eliminate_rows(Player, curGameState)
 		curGameState.Player_This_Round_Hold_flag[Player-1] = false
@@ -56,7 +63,6 @@ func Move_Left(Player int, curGameState GameState) GameState {
 		curGameState.Player_cur_block[Player-1].pos.x -= 1
 		curGameState.Player_Block_Board[Player-1] = tmpboard
 	}
-	curGameState = generatePreviewBlock(Player, curGameState)
 	return curGameState
 }
 
@@ -72,7 +78,6 @@ func Move_Right(Player int, curGameState GameState) GameState {
 		curGameState.Player_cur_block[Player-1].pos.x += 1
 		curGameState.Player_Block_Board[Player-1] = tmpboard
 	}
-	curGameState = generatePreviewBlock(Player, curGameState)
 	return curGameState
 }
 
@@ -103,7 +108,6 @@ func Rotate(Player int, curGameState GameState) GameState {
 	tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 	curGameState.Player_cur_block[Player-1] = tryChangeBlock
 	curGameState.Player_Block_Board[Player-1] = tmpboard
-	curGameState = generatePreviewBlock(Player, curGameState)
 	return curGameState
 }
 
@@ -115,6 +119,7 @@ func Soft_Drop(Player int, curGameState GameState) GameState {
 // 執行方塊瞬間下降
 func Hard_Drop(Player int, curGameState GameState) GameState {
 	flag := true
+	//不斷下移一格
 	for flag {
 		tryChangeBlock := curGameState.Player_cur_block[Player-1]
 		tryChangeBlock.pos.y = tryChangeBlock.pos.y + 1
@@ -124,6 +129,7 @@ func Hard_Drop(Player int, curGameState GameState) GameState {
 		if flag {
 			tmpboard = fillBoardWithBlock(tmpboard, tryChangeBlock)
 			curGameState.Player_cur_block[Player-1].pos.y += 1
+			curGameState.Player_Block_Board[Player-1] = tmpboard
 		} else {
 			curGameState = Check_row_full(Player, curGameState)
 			curGameState = Eliminate_rows(Player, curGameState)
@@ -172,6 +178,5 @@ func Hold(Player int, curGameState GameState) GameState {
 		curGameState.Player_cur_block_type[Player-1] = newBlockType
 		curGameState.Player_Hold_Block_type[Player-1] = oldBlockType
 	}
-	curGameState = generatePreviewBlock(Player, curGameState)
 	return curGameState
 }
