@@ -204,8 +204,21 @@ func updateGameLoop(Player1_conn *websocket.Conn, Player2_conn *websocket.Conn, 
 		rooms[roomID] = curGameState
 
 		// 向房間內的玩家廣播更新後的遊戲狀態
-		Player1_conn.WriteJSON(rooms[roomID])
-		Player2_conn.WriteJSON(rooms[roomID])
+		err := Player1_conn.WriteJSON(rooms[roomID])
+
+		if err != nil {
+			fmt.Print("Player 1 disconnected.\n")
+			curGameState.ifGameOver = 2
+			rooms[roomID] = curGameState
+		}
+
+		err = Player2_conn.WriteJSON(rooms[roomID])
+
+		if err != nil {
+			fmt.Print("Player 2 disconnected.\n")
+			curGameState.ifGameOver = 1
+			rooms[roomID] = curGameState
+		}
 
 		if rooms[roomID].ifGameOver != 0 {
 			//處理勝負
