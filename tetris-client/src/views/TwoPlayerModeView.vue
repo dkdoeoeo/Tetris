@@ -270,7 +270,7 @@ window.addEventListener("resize", handleResize);
 
     <Transition name="gameSceneContainerTransition">
       <div id="gameSceneContainer" v-show="gameStartCountDown == 1 || gameStartCountDown == 0" class="h-full w-full">
-        <div id="Header" class="absolute top-0 left-0 w-full">
+        <div id="Header" class="absolute top-0 left-0 w-full z-10">
           <div class="flex flex-col justify-center">
             <div class="w-full">
               <RouterLink to="/" class="absolute left-0 text-gray-600 hover:text-black hover:scale-110 ease-linear duration-[80ms]"><Icon icon="line-md:arrow-small-left" width="92" height="92"/></RouterLink>

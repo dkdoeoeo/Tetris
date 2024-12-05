@@ -26,6 +26,7 @@ const props = defineProps({
 
 // current theme settings
 let cellBgColor = "linear-gradient(145deg, #4c9ed9, #2a6f91)"
+let cellBgColorDarker = "linear-gradient(145deg, #387ca7, #1f556d)"
 
 // board
 // const boardRef = useTemplateRef('TetrisBoardRef')
@@ -91,7 +92,7 @@ const calDisplays = () => {
         ]
         break
       case "L":
-        blockColor = 'orange'
+        blockColor = 'darkblue'
         blockDisplay = [
           [0, 0, 0, 0],
           [0, 1, 0, 0],
@@ -100,7 +101,7 @@ const calDisplays = () => {
         ]
         break
       case "J":
-        blockColor = 'darkblue'
+        blockColor = 'orange'
         blockDisplay = [
           [0, 0, 0, 0],
           [0, 0, 1, 0],
@@ -118,7 +119,7 @@ const calDisplays = () => {
         ]
         break
       case "Z":
-        blockColor = 'red'
+        blockColor = 'green'
         blockDisplay = [
           [0, 0, 0],
           [1, 1, 0],
@@ -127,7 +128,7 @@ const calDisplays = () => {
         ]
         break
       case "S":
-        blockColor = 'green'
+        blockColor = 'red'
         blockDisplay = [
           [0, 0, 0],
           [0, 1, 1],
@@ -144,6 +145,16 @@ const calDisplays = () => {
           [0, 0, 0],
         ]
         break
+      //none holding
+      default:
+        blockColor = 'transparent'
+        blockDisplay = [
+          [0, 0, 0],
+          [0, 0, 0],
+          [0, 0, 0],
+          [0, 0, 0],
+        ]
+        break
     }
     
     if (index == 0) { //NextBlockType
@@ -153,7 +164,6 @@ const calDisplays = () => {
     else { //HoldBlockType
       holdBlockColor = blockColor
       holdBlockDisplay.value = blockDisplay
-
     }
   }
   
@@ -162,8 +172,10 @@ const calDisplays = () => {
 // ================================ Board ==============================
 const getBoardCellStyle = (rowIndex, colIndex) => {
     let cellVal = props.Board[rowIndex][colIndex]
-    let color = "gray"
+  
 
+    let color = ""
+  
     switch (cellVal) {
       case 0:
         color = '';
@@ -201,14 +213,14 @@ const getBoardCellStyle = (rowIndex, colIndex) => {
       top: `0px`,
       left: `${cellSideLength.value * colIndex}px`,
       border: `${cellPadding.value}px solid`,
-      borderColor: `lightgray gray gray lightgray`,
+      borderColor: cellVal == 9 ?  `black` : `lightgray gray gray lightgray`,
       backgroundClip: `content-box`,
       backgroundColor:`${color}`,
       backgroundImage: `${color} ${cellBgColor}`,
-
       // Theme 0 ${color} linear-gradient(145deg, #4c9ed9, #2a6f91)
     };
    
+
 }
 
 const getBoardRowStyle = (rowIndex) => {

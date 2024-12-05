@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 const defaultSettings = {
-    MusicVolume: 15,
+    MusicVolume: 0.5,
     Theme: 0,
 }
 const getSettings = () => {

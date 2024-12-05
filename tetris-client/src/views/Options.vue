@@ -1,10 +1,9 @@
 <script setup>
 import { Icon } from '@iconify/vue';
 import { useOptionsStore} from '@/stores/Options'
+let OptionsStore = useOptionsStore()
+OptionsStore.updateSettings({volume: 20})
 
-let settings = ref(useOptionsStore().settings);
-const handleTheme = () => {
-}
 </script>
 
 <template>
