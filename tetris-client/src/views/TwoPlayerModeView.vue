@@ -182,27 +182,23 @@ onMounted(() => {
       }
       
       if(data.Player_Block_Board) {
-        // make sure vue notice the change
         blockBoardPlayer1.value = data.Player_Block_Board[0]
         blockBoardPlayer2.value = data.Player_Block_Board[1]
       }
 
       if(data.Player_Next_Block) {
-        // make sure vue notice the change
         nextBlockTypePlayer1.value = data.Player_Next_Block[0]
         nextBlockTypePlayer2.value = data.Player_Next_Block[1]
       }
       
       
       if(data.Player_Hold_Block_type) {
-        // make sure vue notice the change
         holdBlockTypePlayer1.value = data.Player_Hold_Block_type[0]
         holdBlockTypePlayer2.value = data.Player_Hold_Block_type[1]
       }
 
 
       if(data.PlayerScore) {
-        // make sure vue notice the change
         scorePlayer1.value = data.PlayerScore[0]
         scorePlayer2.value = data.PlayerScore[1]
       }
@@ -290,11 +286,11 @@ window.addEventListener("resize", handleResize);
           <div  id="TetrisUIContainer" ref="TetrisUIContainerRef" class="relative flex flex-row justify-around items-center h-full w-full z-0">
             <div class="flex flex-col justify-center items-center h-full w-full">
               <h2 class="font-jersey text-7xl text-red-700">Player 1</h2>
-              <TetrisBoard :Board=blockBoardPlayer1 :key="`Player1_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer1" :Score="scorePlayer1"></TetrisBoard>
+              <TetrisBoard :Board=blockBoardPlayer1 :key="`Player1_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer1" :HoldBlockType="holdBlockTypePlayer1" :Score="scorePlayer1"></TetrisBoard>
             </div>
             <div class="flex flex-col justify-center items-center h-full w-full">
               <h2 class="font-jersey text-7xl text-yellow-600">Player 2</h2>
-              <TetrisBoard :Board=blockBoardPlayer2 :key="`Player2_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer2" :Score="scorePlayer2"></TetrisBoard>   
+              <TetrisBoard :Board=blockBoardPlayer2 :key="`Player2_${redrawTetrisUICounter}`" :UIHeight="uiHeight" :NextBlockType="nextBlockTypePlayer2" :HoldBlockType="holdBlockTypePlayer2" :Score="scorePlayer2"></TetrisBoard>   
             </div>
           </div>
         </div>

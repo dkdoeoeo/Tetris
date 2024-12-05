@@ -75,7 +75,7 @@ const resizeBoard = () => {
 }
 
 const calDisplays = () => {
-  let blockTypes = [props.NextBlockType, props.holdBlockDisplay]
+  let blockTypes = [props.NextBlockType, props.HoldBlockType]
   let blockDisplay;
   let blockColor;
 
