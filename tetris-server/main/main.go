@@ -197,8 +197,8 @@ func updateGameLoop(Player1_conn *websocket.Conn, Player2_conn *websocket.Conn, 
 		curGameState := rooms[roomID]
 
 		// 讓方塊向下移動
-		//curGameState = Move_Down(1, curGameState)
-		//curGameState = Move_Down(2, curGameState)
+		curGameState = Move_Down(1, curGameState)
+		curGameState = Move_Down(2, curGameState)
 
 		// 更新遊戲狀態
 		rooms[roomID] = curGameState
