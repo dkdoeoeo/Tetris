@@ -225,8 +225,6 @@ func updateGameLoop(Player1_conn *websocket.Conn, Player2_conn *websocket.Conn, 
 			rooms[roomID] = curGameState
 		}
 
-		Player1_conn.WriteJSON(rooms[roomID])
-
 		if rooms[roomID].ifGameOver != 0 {
 			//處理勝負
 			Player1_conn.Close()

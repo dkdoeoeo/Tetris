@@ -6,7 +6,7 @@ import { Icon } from '@iconify/vue';
 let socket;
 let connected = ref(false)
 let opponentFound = ref(false)
-// 0: game not over, 1: player 1 wins, 2: player 2 wins
+// 0: game not over, 1: game over
 let ifGameOver = ref(0)
 // game starts after 3 secs of finding a opponent
 let gameStartCountDown = ref(-1) // -1 = not found, 0 = game start, > 0 = counting down
@@ -153,7 +153,7 @@ onMounted(() => {
     socket.onclose = () => {
       connected.value = false;  // 當 WebSocket 斷開時設為 false
       gameStartCountDown.value = -1
-      console.log(ifGameOver.value)  
+      ifGameOver.value = 1 
       console.log("Disconnected from server!");
     };
 
@@ -208,12 +208,6 @@ onMounted(() => {
       if(data.PlayerScore != undefined) {
         scorePlayer1.value = data.PlayerScore[0]
         scorePlayer2.value = data.PlayerScore[1]
-      }
-
-      console.log(data.ifGameOver)
-
-      if(data.ifGameOver != undefined) {
-        ifGameOver.value = data.ifGameOver 
       }
 
       redrawTetrisUICounter.value += 1
@@ -277,31 +271,20 @@ window.addEventListener("resize", handleResize);
         <!-- <h1 class="font-jersey text-9xl text-center">{{gameStartCountDown}}</h1> -->
     </div>
 
-    <!-- win scene -->
+    <!-- Game Over -->
     <Transition name="gameSceneContainerTransition">
       <div v-show="ifGameOver != 0 && ifGameOver == playerId" class="fixed flex flex-col justify-center items-center h-screen w-screen top-0 left-0 bg-white z-10">
         <RouterLink to="/" class="absolute top-0 left-0 text-gray-600 hover:text-black hover:scale-110 ease-linear duration-[80ms]">
           <Icon icon="line-md:arrow-small-left" width="92" height="92"/>
         </RouterLink>
         <div class="flex flex-row items-end">
-          <h1 class="font-jersey text-7xl">YOU WON!!</h1>
+          <h1 class="font-jersey text-7xl">Thank You For Playing!</h1>
         </div>
       </div>
     </Transition>
       
 
-      
-    <!-- lose scene -->
-    <Transition name="gameSceneContainerTransition">
-      <div v-show="ifGameOver != 0 && ifGameOver != playerId" class="fixed flex flex-col justify-center items-center h-screen w-screen top-0 left-0 bg-white z-10">
-        <RouterLink to="/" class="absolute top-0 left-0 text-gray-600 hover:text-black hover:scale-110 ease-linear duration-[80ms]">
-          <Icon icon="line-md:arrow-small-left" width="92" height="92"/>
-        </RouterLink>
-        <div class="flex flex-row items-end">
-          <h1 class="font-jersey text-7xl">YOU LOSE :(</h1>
-        </div>
-      </div>
-    </Transition>
+    
 
     <Transition name="gameSceneContainerTransition">
       <div id="gameSceneContainer" v-show="ifGameOver == 0 && (gameStartCountDown == 1 || gameStartCountDown == 0)" class="h-full w-full">
