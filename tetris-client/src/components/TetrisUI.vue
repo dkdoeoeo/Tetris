@@ -300,7 +300,7 @@ onMounted(() => {
   <div id="TetrisUI" class="relative flex flex-row justify-center gap-3 items-start min-h-min min-w-min " :style="{height: `${UIHeight}`,}">
     <div class="flex flex-col gap-7">
       <div class="relative flex flex-col items-center justify-between border-black rounded-3xl border-4 min-h-min p-2" :style="{width: `${nextBlockSideLength}px`}">
-        <h2 class="font-jersey text-5xl whitespace-nowrap">Next Block:</h2>
+        <h2 class="font-jersey text-5xl whitespace-nowrap">Next:</h2>
         <div id="NextBlock" class="flex flex-col justify-center items-center">
           <div v-for="(row, nextBlockRowIndex) in nextBlockDisplay" :key="`next_row_${nextBlockRowIndex}`" class="flex flex-row justify-center gap-0" :style="{width: `${cellSideLength * nextBlockDisplay.length}px`, height: `${cellSideLength}px`}">
             <span v-for="(cellVal, nextBlockColIndex) in row" :key="`next_cell_${nextBlockRowIndex * nextBlockDisplay.length + nextBlockColIndex}`" class="" :style="getNextBlockCellStyle(nextBlockRowIndex, nextBlockColIndex)">
@@ -326,7 +326,7 @@ onMounted(() => {
     </div>
     <div class="flex flex-col gap-7">
       <div class="relative flex flex-col items-center justify-between border-black rounded-3xl border-4 min-h-min p-2" :style="{width: `${nextBlockSideLength}px`}">
-        <h2 class="font-jersey text-5xl whitespace-nowrap">Holding:</h2>
+        <h2 class="font-jersey text-5xl whitespace-nowrap">Hold:</h2>
         <div id="NextBlock" class="flex flex-col justify-center items-center">
           <div v-for="(row, holdBlockRowIndex) in nextBlockDisplay" :key="`hold_row_${holdBlockRowIndex}`" class="flex flex-row justify-center gap-0" :style="{width: `${cellSideLength * nextBlockDisplay.length}px`, height: `${cellSideLength}px`}">
             <span v-for="(cellVal, holdBlockColIndex) in row" :key="`hold_cell_${holdBlockRowIndex * nextBlockDisplay.length + holdBlockColIndex}`" class="" :style="getHoldBlockCellStyle(holdBlockRowIndex, holdBlockColIndex)">
