@@ -161,6 +161,7 @@ func Hold(Player int, curGameState GameState) GameState {
 			curGameState.Player_Next_Block[Player-1] = generateRandomBlockType()
 		}
 		curGameState.Player_cur_block[Player-1] = generateRandomBlock(newBlockType)
+
 		//檢查是否衝突
 		for _, offset := range curGameState.Player_cur_block[Player-1].Offsets {
 			x := curGameState.Player_cur_block[Player-1].pos.x + offset[0]

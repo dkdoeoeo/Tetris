@@ -152,8 +152,8 @@ onMounted(() => {
 
     socket.onclose = () => {
       connected.value = false;  // 當 WebSocket 斷開時設為 false
-      opponentFound.value = false
       gameStartCountDown.value = -1
+      console.log(ifGameOver.value)  
       console.log("Disconnected from server!");
     };
 
@@ -164,8 +164,13 @@ onMounted(() => {
      // 接收後端訊息
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
+
+      if(data == undefined) {
+        return
+      }
+
     
-      if (data.player_id) {
+      if (data.player_id != undefined) {
         opponentFound.value = true
 
         // game start after 3 sec
@@ -183,31 +188,32 @@ onMounted(() => {
         playerName = playerId == 1 ? "Player 1" : "Player 2" 
       }
       
-      if(data.Player_Block_Board) {
+      if(data.Player_Block_Board != undefined) {
         blockBoardPlayer1.value = data.Player_Block_Board[0]
         blockBoardPlayer2.value = data.Player_Block_Board[1]
       }
 
-      if(data.Player_Next_Block) {
+      if(data.Player_Next_Block != undefined) {
         nextBlockTypePlayer1.value = data.Player_Next_Block[0]
         nextBlockTypePlayer2.value = data.Player_Next_Block[1]
       }
       
       
-      if(data.Player_Hold_Block_type) {
+      if(data.Player_Hold_Block_type != undefined) {
         holdBlockTypePlayer1.value = data.Player_Hold_Block_type[0]
         holdBlockTypePlayer2.value = data.Player_Hold_Block_type[1]
       }
 
 
-      if(data.PlayerScore) {
+      if(data.PlayerScore != undefined) {
         scorePlayer1.value = data.PlayerScore[0]
         scorePlayer2.value = data.PlayerScore[1]
       }
 
-      if(data.ifGameOver) {
+      console.log(data.ifGameOver)
+
+      if(data.ifGameOver != undefined) {
         ifGameOver.value = data.ifGameOver 
-        console.log(ifGameOver.value)
       }
 
       redrawTetrisUICounter.value += 1
@@ -273,7 +279,7 @@ window.addEventListener("resize", handleResize);
 
     <!-- win scene -->
     <Transition name="gameSceneContainerTransition">
-      <div v-show="ifGameOver != 0 && ifGameOver == playerId">
+      <div v-show="ifGameOver != 0 && ifGameOver == playerId" class="fixed flex flex-col justify-center items-center h-screen w-screen top-0 left-0 bg-white z-10">
         <RouterLink to="/" class="absolute top-0 left-0 text-gray-600 hover:text-black hover:scale-110 ease-linear duration-[80ms]">
           <Icon icon="line-md:arrow-small-left" width="92" height="92"/>
         </RouterLink>
@@ -287,7 +293,7 @@ window.addEventListener("resize", handleResize);
       
     <!-- lose scene -->
     <Transition name="gameSceneContainerTransition">
-      <div v-show="ifGameOver != 0 && ifGameOver != playerId">
+      <div v-show="ifGameOver != 0 && ifGameOver != playerId" class="fixed flex flex-col justify-center items-center h-screen w-screen top-0 left-0 bg-white z-10">
         <RouterLink to="/" class="absolute top-0 left-0 text-gray-600 hover:text-black hover:scale-110 ease-linear duration-[80ms]">
           <Icon icon="line-md:arrow-small-left" width="92" height="92"/>
         </RouterLink>

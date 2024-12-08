@@ -71,6 +71,8 @@ func initGameState() GameState {
 		Player_cur_block:      [2]TetrisBlock{player1Block, player2Block},
 		Player_Next_Block:     [2]string{generateRandomBlockType(), generateRandomBlockType()},
 	}
+
+	newGameState.ifGameOver = 0
 	//把新的方塊填到curBoard裡
 	newGameState.Player_Block_Board[0] = fillBoardWithBlock(newGameState.Player_Block_Board[0], player1Block)
 	newGameState.Player_Block_Board[1] = fillBoardWithBlock(newGameState.Player_Block_Board[1], player2Block)
@@ -82,6 +84,7 @@ func initGameState() GameState {
 // 處理每個客戶端的 WebSocket 連線
 func handleConnection(conn *websocket.Conn) {
 	// 先將玩家加入等待隊列
+
 	mu.Lock()
 	waitingPlayers = append(waitingPlayers, conn)
 	mu.Unlock()
@@ -143,8 +146,10 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 
 		// 傳送更新後雙方遊戲狀態
 		conn.WriteJSON(rooms[roomID])
+
 		//test
 		printInfo(rooms[roomID])
+
 		if rooms[roomID].ifGameOver != 0 {
 			//處理勝負
 			conn.Close()
@@ -219,6 +224,8 @@ func updateGameLoop(Player1_conn *websocket.Conn, Player2_conn *websocket.Conn, 
 			curGameState.ifGameOver = 1
 			rooms[roomID] = curGameState
 		}
+
+		Player1_conn.WriteJSON(rooms[roomID])
 
 		if rooms[roomID].ifGameOver != 0 {
 			//處理勝負
