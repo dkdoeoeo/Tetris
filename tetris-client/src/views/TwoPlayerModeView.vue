@@ -273,7 +273,7 @@ window.addEventListener("resize", handleResize);
 
     <!-- Game Over -->
     <Transition name="gameSceneContainerTransition">
-      <div v-show="ifGameOver != 0 && ifGameOver == playerId" class="fixed flex flex-col justify-center items-center h-screen w-screen top-0 left-0 bg-white z-10">
+      <div v-show="ifGameOver != 0" class="fixed flex flex-col justify-center items-center h-screen w-screen top-0 left-0 bg-white z-10">
         <RouterLink to="/" class="absolute top-0 left-0 text-gray-600 hover:text-black hover:scale-110 ease-linear duration-[80ms]">
           <Icon icon="line-md:arrow-small-left" width="92" height="92"/>
         </RouterLink>
