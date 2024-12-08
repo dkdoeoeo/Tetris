@@ -6,6 +6,8 @@ import { Icon } from '@iconify/vue';
 let socket;
 let connected = ref(false)
 let opponentFound = ref(false)
+// 0: game not over, 1: player 1 wins, 2: player 2 wins
+let ifGameOver = ref(0)
 // game starts after 3 secs of finding a opponent
 let gameStartCountDown = ref(-1) // -1 = not found, 0 = game start, > 0 = counting down
 let gameStartCountDownInterval = null
@@ -203,6 +205,11 @@ onMounted(() => {
         scorePlayer2.value = data.PlayerScore[1]
       }
 
+      if(data.ifGameOver) {
+        ifGameOver.value = data.ifGameOver 
+        console.log(ifGameOver.value)
+      }
+
       redrawTetrisUICounter.value += 1
     }
     
@@ -241,7 +248,7 @@ window.addEventListener("resize", handleResize);
   <p v-else>Waiting for connection...</p> -->
 
   <div class="flex flex-col justify-center items-center h-screen w-screen">
-    <div v-show="!opponentFound">
+    <div v-show="ifGameOver == 0 && !opponentFound" >
       <RouterLink to="/" class="absolute top-0 left-0 text-gray-600 hover:text-black hover:scale-110 ease-linear duration-[80ms]"><Icon icon="line-md:arrow-small-left" width="92" height="92"/></RouterLink>
       <div class="flex flex-row items-end">
         <h1 class="font-jersey text-7xl">Looking for your next opponent</h1>
@@ -249,7 +256,7 @@ window.addEventListener("resize", handleResize);
       </div>
     </div>
 
-    <div v-show="gameStartCountDown > 0"  class="fixed flex flex-col justify-center items-center h-screen w-screen top-0 left-0 bg-white z-10">
+    <div v-show="ifGameOver == 0 && gameStartCountDown > 0"  class="fixed flex flex-col justify-center items-center h-screen w-screen top-0 left-0 bg-white z-10">
         <h1 class="font-jersey text-7xl text-center">Game will start in: </h1>
         <div class="flex items-center justify-center h-36 w-36">
           <Transition name="gameCountdown">
@@ -264,8 +271,34 @@ window.addEventListener("resize", handleResize);
         <!-- <h1 class="font-jersey text-9xl text-center">{{gameStartCountDown}}</h1> -->
     </div>
 
+    <!-- win scene -->
     <Transition name="gameSceneContainerTransition">
-      <div id="gameSceneContainer" v-show="gameStartCountDown == 1 || gameStartCountDown == 0" class="h-full w-full">
+      <div v-show="ifGameOver != 0 && ifGameOver == playerId">
+        <RouterLink to="/" class="absolute top-0 left-0 text-gray-600 hover:text-black hover:scale-110 ease-linear duration-[80ms]">
+          <Icon icon="line-md:arrow-small-left" width="92" height="92"/>
+        </RouterLink>
+        <div class="flex flex-row items-end">
+          <h1 class="font-jersey text-7xl">YOU WON!!</h1>
+        </div>
+      </div>
+    </Transition>
+      
+
+      
+    <!-- lose scene -->
+    <Transition name="gameSceneContainerTransition">
+      <div v-show="ifGameOver != 0 && ifGameOver != playerId">
+        <RouterLink to="/" class="absolute top-0 left-0 text-gray-600 hover:text-black hover:scale-110 ease-linear duration-[80ms]">
+          <Icon icon="line-md:arrow-small-left" width="92" height="92"/>
+        </RouterLink>
+        <div class="flex flex-row items-end">
+          <h1 class="font-jersey text-7xl">YOU LOSE :(</h1>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition name="gameSceneContainerTransition">
+      <div id="gameSceneContainer" v-show="ifGameOver == 0 && (gameStartCountDown == 1 || gameStartCountDown == 0)" class="h-full w-full">
         <div id="Header" class="absolute top-0 left-0 w-full z-10">
           <div class="flex flex-col justify-center">
             <div class="w-full">
