@@ -135,7 +135,6 @@ func Check_collision(tryChangeBlock TetrisBlock, tmpboard [20][10]int) bool {
 			return false //超出範圍
 		}
 	}
-
 	return true
 }
 

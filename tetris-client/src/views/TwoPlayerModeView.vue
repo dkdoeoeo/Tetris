@@ -143,7 +143,7 @@ onMounted(() => {
 
 
     // 當組件加載時，建立 WebSocket 連線
-    socket = new WebSocket("ws://localhost:8080/game");
+    socket = new WebSocket("ws://140.118.178.237:8080/game");
     // 註冊 WebSocket 事件
     socket.onopen = () => {
       connected.value = true;  // 當 WebSocket 連線成功時設為 true

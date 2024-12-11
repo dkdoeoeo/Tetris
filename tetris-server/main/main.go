@@ -12,6 +12,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+var curRoomNum int = 0
+
 type PlayerMove struct {
 	Player int    `json:"player"`
 	Move   string `json:"move"`
@@ -90,12 +92,13 @@ func handleConnection(conn *websocket.Conn) {
 	mu.Unlock()
 
 	// 如果有兩位玩家，開始匹配
-	if len(waitingPlayers) >= 2 {
+	if len(waitingPlayers) >= 2 && curRoomNum <= 10 {
 		player1Conn := waitingPlayers[0]
 		player2Conn := waitingPlayers[1]
 
 		// 創建一個新的遊戲房間
 		roomID := createRoom()
+		curRoomNum++
 
 		// 初始化遊戲狀態
 		rooms[roomID] = initGameState()
@@ -149,12 +152,6 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 
 		//test
 		printInfo(rooms[roomID])
-
-		if rooms[roomID].ifGameOver != 0 {
-			//處理勝負
-			conn.Close()
-			break
-		}
 	}
 }
 
@@ -229,6 +226,7 @@ func updateGameLoop(Player1_conn *websocket.Conn, Player2_conn *websocket.Conn, 
 			//處理勝負
 			Player1_conn.Close()
 			Player2_conn.Close()
+			curRoomNum--
 			break
 		}
 	}
