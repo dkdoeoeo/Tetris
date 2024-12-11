@@ -92,7 +92,7 @@ func handleConnection(conn *websocket.Conn) {
 	mu.Unlock()
 
 	// 如果有兩位玩家，開始匹配
-	if len(waitingPlayers) >= 2 && curRoomNum <= 10 {
+	if len(waitingPlayers) >= 2 && curRoomNum <= MaxRoomNum {
 		player1Conn := waitingPlayers[0]
 		player2Conn := waitingPlayers[1]
 
@@ -158,36 +158,8 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 // test
 func printInfo(curGameState GameState) {
 	fmt.Print("\033[H\033[2J")
-	fmt.Print("Player1Score: ")
-	fmt.Print(curGameState.PlayerScore[0])
-	fmt.Println()
-	fmt.Print("Player1_Hold_Block_type: ")
-	fmt.Print(curGameState.Player_Hold_Block_type[0])
-	fmt.Println()
-	fmt.Print("Player1_Next_Block: ")
-	fmt.Print(curGameState.Player_Next_Block[0])
-	fmt.Println()
-	fmt.Print("Player1_This_Round_Hold_flag: ")
-	fmt.Print(curGameState.Player_This_Round_Hold_flag[0])
-	fmt.Println()
-	fmt.Print("Player1_cur_block_type: ")
-	fmt.Print(curGameState.Player_cur_block_type[0])
-	fmt.Println()
-	fmt.Print("Player1_garbage_line: ")
-	fmt.Print(curGameState.Player_garbage_line[0])
-	fmt.Println()
-	fmt.Print("ifGameOver: ")
-	fmt.Print(curGameState.ifGameOver)
-	fmt.Println()
-
-	for i := 0; i < len(curGameState.Player_Block_Board[0]); i++ {
-		for j := 0; j < len(curGameState.Player_Block_Board[0][i]); j++ {
-			// 輸出每個格子
-			fmt.Print(curGameState.Player_Block_Board[0][i][j], " ")
-		}
-		// 每列跳行
-		fmt.Println()
-	}
+	fmt.Print("curRoomNum: ")
+	fmt.Print(curRoomNum)
 }
 
 // 定期更新遊戲狀態的函數

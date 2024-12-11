@@ -25,8 +25,9 @@ const (
 )
 
 const (
-	Row = 20
-	Col = 10
+	Row        = 20
+	Col        = 10
+	MaxRoomNum = 10
 )
 
 type Pos struct {
