@@ -108,12 +108,42 @@ func handleConnection(conn *websocket.Conn) {
 		player2 := Player{PlayerID: 2}
 
 		// 發送玩家編號給兩位玩家
-		player1Conn.WriteJSON(player1)
-		player2Conn.WriteJSON(player2)
+		err := safeWriteJSON(player1Conn, player1)
+
+		if err != nil {
+			fmt.Println("Error WriteJSON message:", err)
+			player1Conn.Close()
+			player2Conn.Close()
+			curRoomNum--
+		}
+
+		err = safeWriteJSON(player2Conn, player2)
+
+		if err != nil {
+			fmt.Println("Error WriteJSON message:", err)
+			player1Conn.Close()
+			player2Conn.Close()
+			curRoomNum--
+		}
 
 		// 發送初始遊戲狀態給兩位玩家
-		player1Conn.WriteJSON(rooms[roomID])
-		player2Conn.WriteJSON(rooms[roomID])
+		err = safeWriteJSON(player1Conn, rooms[roomID])
+
+		if err != nil {
+			fmt.Println("Error WriteJSON message:", err)
+			player1Conn.Close()
+			player2Conn.Close()
+			curRoomNum--
+		}
+
+		err = safeWriteJSON(player2Conn, rooms[roomID])
+
+		if err != nil {
+			fmt.Println("Error WriteJSON message:", err)
+			player1Conn.Close()
+			player2Conn.Close()
+			curRoomNum--
+		}
 
 		// 清除等待匹配的隊列
 		waitingPlayers = waitingPlayers[2:]
@@ -122,7 +152,11 @@ func handleConnection(conn *websocket.Conn) {
 		go updateGameLoop(player1Conn, player2Conn, roomID)
 	} else {
 		// 如果還沒有對手，告知玩家等候
-		conn.WriteJSON(map[string]string{"message": "Waiting for another player"})
+		err := safeWriteJSON(conn, map[string]string{"message": "Waiting for another player"})
+		if err != nil {
+			fmt.Println("Error WriteJSON message:", err)
+			conn.Close()
+		}
 	}
 
 }
@@ -148,7 +182,11 @@ func listenForPlayerInput(conn *websocket.Conn, roomID string) {
 		rooms[roomID] = update_game_status(input.Player, input.Move, rooms[roomID])
 
 		// 傳送更新後雙方遊戲狀態
-		conn.WriteJSON(rooms[roomID])
+		err = safeWriteJSON(conn, rooms[roomID])
+		if err != nil {
+			fmt.Println("Error Write message:", err)
+			break
+		}
 
 		//test
 		printInfo(rooms[roomID])
@@ -178,7 +216,7 @@ func updateGameLoop(Player1_conn *websocket.Conn, Player2_conn *websocket.Conn, 
 		rooms[roomID] = curGameState
 
 		// 向房間內的玩家廣播更新後的遊戲狀態
-		err := Player1_conn.WriteJSON(rooms[roomID])
+		err := safeWriteJSON(Player1_conn, rooms[roomID])
 
 		if err != nil {
 			fmt.Print("Player 1 disconnected.\n")
@@ -186,7 +224,7 @@ func updateGameLoop(Player1_conn *websocket.Conn, Player2_conn *websocket.Conn, 
 			rooms[roomID] = curGameState
 		}
 
-		err = Player2_conn.WriteJSON(rooms[roomID])
+		err = safeWriteJSON(Player2_conn, rooms[roomID])
 
 		if err != nil {
 			fmt.Print("Player 2 disconnected.\n")
@@ -202,6 +240,12 @@ func updateGameLoop(Player1_conn *websocket.Conn, Player2_conn *websocket.Conn, 
 			break
 		}
 	}
+}
+
+func safeWriteJSON(conn *websocket.Conn, v interface{}) error {
+	mu.Lock()
+	defer mu.Unlock()
+	return conn.WriteJSON(v)
 }
 
 func main() {
